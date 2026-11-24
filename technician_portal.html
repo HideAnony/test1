@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Netlogic Systems — Technician Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
+    input, select, textarea { color-scheme: dark; }
+    .field {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 0.65rem;
+      padding: 0.6rem 0.75rem;
+      color: #f1f5f9;
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .field:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    }
+    .field:disabled { opacity: 0.5; cursor: not-allowed; }
+    .progress-bar { transition: width 0.35s ease; }
+  </style>
+</head>
+<body class="min-h-full bg-slate-900 text-slate-100 flex flex-col">
+
+  <!-- TOP NAVIGATION BAR (TECHNICIAN PORTAL PAGE) -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 grid place-items-center shadow-lg shadow-emerald-950 shrink-0">
+          <i class="fa-solid fa-hard-hat text-white"></i>
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="font-bold text-base sm:text-lg text-white">Netlogic Systems — Technician Portal</h1>
+            <span id="simDateBadge" class="text-xs font-mono bg-blue-950 text-blue-300 border border-blue-700/60 px-2.5 py-0.5 rounded-full">
+              <i class="fa-regular fa-calendar mr-1"></i><span id="simDateText">2026-11-19</span>
+            </span>
+            <span id="liveSyncIndicator" class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-full">
+              <i class="fa-solid fa-link mr-1"></i>Connecting...
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Aligned Site Details • Morning Tasks • Pending Reasons • EOD Submit (Admin Approval)</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="./netlogic_systems_main_admin_report_page.html" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-700/60 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition inline-flex items-center gap-1.5">
+          <i class="fa-solid fa-table-cells-large"></i>Main Report Page
+        </a>
+
+        <div id="techSessionNavGroup" class="hidden flex items-center gap-2">
+          <button type="button" onclick="scrollToNotifs()" id="bellBtn" class="relative bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-2 rounded-lg text-xs cursor-pointer transition" title="Notifications">
+            <i class="fa-solid fa-bell"></i>
+            <span id="bellCount" class="hidden absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] grid place-items-center px-1">0</span>
+          </button>
+          <span id="headerTechChip" class="text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-700/70 px-3 py-1.5 rounded-lg"></span>
+          <button type="button" onclick="logoutTechnician()" class="bg-red-600 hover:bg-red-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition shadow">
+            <i class="fa-solid fa-right-from-bracket mr-1"></i>Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto w-full flex-1 p-4 sm:p-6 space-y-6">
+
+    <!-- TECHNICIAN LOGIN VIEW -->
+    <section id="loginView" class="py-6 sm:py-12">
+      <div class="max-w-md mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
+        <div class="text-center space-y-2">
+          <div class="w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/40 text-blue-400 grid place-items-center mx-auto text-2xl">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+          <h2 class="text-xl font-bold text-white">Technician Portal Login</h2>
+          <p class="text-xs text-slate-400">Enter your technician username and PIN (default <code class="text-blue-300">1234</code>). All updates sync directly to the Main Report Page.</p>
+        </div>
+
+        <form onsubmit="handleTechnicianLogin(event)" class="space-y-4">
+          <label class="block text-xs text-slate-300">
+            Technician Username *
+            <input id="loginUsername" required class="field mt-1" placeholder="e.g. tech_vinay" />
+          </label>
+          <label class="block text-xs text-slate-300">
+            Password / PIN *
+            <input id="loginPin" type="password" required class="field mt-1" placeholder="Enter your password or PIN" />
+          </label>
+          <p id="loginErrorMsg" class="hidden text-xs text-red-400 bg-red-950/50 border border-red-800/60 rounded-lg p-2.5"></p>
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl text-sm cursor-pointer transition shadow-lg shadow-blue-950">
+            <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i>Login to Technician Portal
+          </button>
+        </form>
+
+        <!-- QUICK FILL SAMPLE TECHNICIANS -->
+        <div class="border-t border-slate-700/80 pt-4 space-y-2">
+          <p class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Quick Fill Technicians</p>
+          <div id="quickFillButtons" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNICIAN WORKSPACE VIEW -->
+    <section id="techWorkspaceView" class="hidden space-y-5">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 grid place-items-center text-xl shrink-0">
+            <i class="fa-solid fa-hard-hat"></i>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 id="wsTechFullName" class="text-lg sm:text-xl font-bold text-white">Vinay</h2>
+              <span id="wsTechUsernameBadge" class="text-xs font-mono bg-slate-900 text-cyan-300 border border-slate-700 px-2.5 py-0.5 rounded-full">@tech_vinay</span>
+              <span id="wsEodStatusBadge" class="text-[11px] px-2.5 py-0.5 rounded-full border"></span>
+            </div>
+            <p id="wsAlignedSubtitle" class="text-xs text-slate-400 mt-0.5">Aligned Site: —</p>
+          </div>
+        </div>
+
+        <button type="button" onclick="logoutTechnician()" class="bg-red-950/60 hover:bg-red-900/70 text-red-300 border border-red-800/60 px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i>Logout
+        </button>
+      </div>
+
+      <!-- EOD STATUS BANNER (pending / rejected / missed) -->
+      <div id="eodStatusBanner" class="hidden rounded-2xl p-4 text-sm"></div>
+
+      <!-- NOTIFICATIONS -->
+      <div id="notifPanel" class="hidden bg-slate-800 border border-indigo-700/50 rounded-2xl p-4 sm:p-5 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-sm font-bold text-indigo-300 flex items-center gap-2">
+            <i class="fa-solid fa-bell"></i> Notifications <span id="notifUnreadPill" class="text-[11px] bg-red-950 text-red-300 border border-red-700/60 px-2 py-0.5 rounded-full">0 new</span>
+          </h3>
+          <button type="button" onclick="markAllNotifRead()" class="text-xs text-blue-400 hover:text-blue-300 cursor-pointer">Mark all read</button>
+        </div>
+        <div id="notifList" class="space-y-2"></div>
+      </div>
+
+      <!-- SUB-TABS: PROJECT TAB vs DAILY TASKS & EOD TAB -->
+      <div class="flex flex-wrap gap-2 bg-slate-800/70 p-2 rounded-2xl border border-slate-700/80">
+        <button type="button" id="subtabProject" onclick="setTechSubtab('project')" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition flex items-center gap-2 shadow">
+          <i class="fa-solid fa-building"></i> Project (Aligned Site)
+        </button>
+        <button type="button" id="subtabTasks" onclick="setTechSubtab('tasks')" class="bg-slate-900 text-slate-300 hover:text-white border border-slate-700 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition flex items-center gap-2">
+          <i class="fa-solid fa-list-check"></i> Daily Tasks & EOD
+          <span id="wsPendingCountPill" class="bg-amber-950 text-amber-300 border border-amber-700/60 px-2 py-0.5 rounded-full text-[11px]">0 Pending</span>
+        </button>
+      </div>
+
+      <!-- SUB-TAB A: ALIGNED PROJECT DETAILS -->
+      <div id="techProjectPanel" class="space-y-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 sm:p-6 space-y-5">
+          <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-700 pb-4">
+            <div>
+              <span class="text-[11px] uppercase tracking-wider font-semibold text-blue-400 bg-blue-950/80 border border-blue-800/60 px-2.5 py-1 rounded-full">
+                Aligned From Main Report Page
+              </span>
+              <h3 id="projTabTitle" class="text-xl sm:text-2xl font-bold text-white mt-2">—</h3>
+              <p id="projTabLocation" class="text-sm text-slate-400 mt-0.5"><i class="fa-solid fa-location-dot mr-1.5 text-rose-400"></i>—</p>
+              <p id="projTabTeam" class="hidden text-sm text-slate-400 mt-0.5"></p>
+            </div>
+            <div class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-right">
+              <p class="text-[11px] text-slate-400">Project Manager (PM)</p>
+              <p id="projTabPm" class="text-sm font-bold text-cyan-300 mt-0.5">—</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-slate-900/80 border border-slate-700/70 rounded-xl p-4 space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-blue-300">Site Scope & Instructions</h4>
+              <p id="projTabScope" class="text-sm text-slate-200 leading-relaxed">—</p>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-700/70 rounded-xl p-4 space-y-3">
+              <div class="flex justify-between items-center">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-300">Overall Site Progress</h4>
+                <span id="projTabProgressText" class="text-sm font-bold text-emerald-400">0%</span>
+              </div>
+              <div class="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                <div id="projTabProgressBar" class="h-full bg-emerald-500 progress-bar" style="width: 0%"></div>
+              </div>
+              <form onsubmit="handleTechProgressUpdate(event)" class="flex items-center gap-2 pt-1">
+                <input id="projTabProgressInput" type="number" min="0" max="100" class="field !py-1.5 text-xs" placeholder="0 - 100" />
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer shrink-0 transition">
+                  Update %
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/60 border border-slate-700/60 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-purple-300">Tasks Under This Aligned Site</h4>
+              <button type="button" onclick="setTechSubtab('tasks')" class="text-xs text-blue-400 hover:text-blue-300 cursor-pointer">
+                Go to Daily Tasks & EOD <i class="fa-solid fa-arrow-right ml-1"></i>
+              </button>
+            </div>
+            <div id="projTabTasksSummary" class="text-xs text-slate-300 space-y-1.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB B: DAILY TASKS & EOD -->
+      <div id="techTasksPanel" class="hidden space-y-5">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 sm:p-5 space-y-4">
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-sun text-amber-400"></i>
+              Morning Task Entry — <span id="morningTaskDate" class="font-mono text-sm text-blue-300"></span>
+            </h3>
+            <p class="text-xs text-slate-400">Add today's tasks for your aligned site (<b id="morningAlignedProjectLabel" class="text-slate-200">—</b>).</p>
+          </div>
+
+          <form onsubmit="handleAddDailyTask(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+            <label class="text-xs text-slate-300 sm:col-span-5">
+              Task Title / Work Item *
+              <input id="newTaskTitle" required class="field mt-1" placeholder="e.g. Terminate 24-port patch panel in Server Rack" />
+            </label>
+            <label class="text-xs text-slate-300 sm:col-span-4">
+              Category / Cable / Device Note
+              <input id="newTaskNote" class="field mt-1" placeholder="e.g. Cat6 Rack-01, Fluke test pending" />
+            </label>
+            <div class="sm:col-span-3">
+              <button id="addTaskBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-lg text-xs cursor-pointer transition shadow disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-plus mr-1"></i>Add Daily Task
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-slate-800/90 border border-amber-700/60 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-base font-bold text-amber-300 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Carried-Over Pending Tasks (Previous Days)
+              </h3>
+              <p class="text-xs text-slate-400">Incomplete tasks moved from earlier days. "Mark Completed" par task aaj ki list me checked hokar aa jayega aur EOD approval ke baad final hoga.</p>
+            </div>
+            <span id="carryOverBadge" class="text-xs font-semibold bg-amber-950 text-amber-300 border border-amber-700/60 px-2.5 py-1 rounded-full">0 Carry-Over</span>
+          </div>
+          <div id="carryOverList" class="space-y-2.5"></div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 sm:p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700 pb-3">
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-moon text-indigo-400"></i>
+                Today's Tasks & End-of-Day (EOD) Checklist
+              </h3>
+              <p class="text-xs text-slate-400">Tick completed tasks. Har unchecked task ka <b>Pending Reason</b> zaroori hai. EOD submit karne ke baad <b>admin approve</b> karega tab hi din ka record final hoga aur naya kaam add kar paoge.</p>
+            </div>
+            <button id="eodSubmitBtn" type="button" onclick="submitEod()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs cursor-pointer transition shadow-lg shadow-emerald-950 flex items-center gap-2 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-paper-plane"></i>
+              Submit EOD for Admin Approval
+            </button>
+          </div>
+          <p id="eodValidationMsg" class="hidden text-xs text-red-300 bg-red-950/60 border border-red-700/70 rounded-xl p-3"></p>
+
+          <label class="block text-xs text-slate-300">
+            EOD Note (optional)
+            <input id="eodNoteInput" class="field mt-1" placeholder="e.g. Rack work done, cable tray material kal aayega" />
+          </label>
+
+          <div id="todayTasksList" class="space-y-3"></div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-slate-800 border border-emerald-800/50 rounded-2xl p-4 sm:p-5 space-y-3">
+            <h4 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+              <i class="fa-solid fa-circle-check"></i> Completed Tasks (Admin-Approved)
+            </h4>
+            <div id="completedTodayList" class="space-y-2 text-xs max-h-64 overflow-y-auto"></div>
+          </div>
+
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 sm:p-5 space-y-3">
+            <h4 class="text-sm font-bold text-cyan-300 flex items-center gap-2">
+              <i class="fa-solid fa-book-open"></i> Approved EOD History
+            </h4>
+            <div id="eodHistoryList" class="space-y-2 text-xs max-h-64 overflow-y-auto"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastBox" class="hidden fixed bottom-4 right-4 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-medium flex items-center gap-2"></div>
+
+  <script>
+    // Shared keys / settings — SAME as main_report.html
+    const STORAGE_KEY = 'netlogic_tech_eod_portal_v1';
+    const SESSION_TECH_KEY = 'netlogic_active_tech_session_v1';
+    const SHARED_PROJECTS_KEY = 'infratrack_dispatch_projects_v2';
+    const CLOUD_URL_KEY = 'netlogic_firebase_rtdb_url_v1';
+    const FIREBASE_URL = 'https://netlogic-tracker-771cf-default-rtdb.asia-southeast1.firebasedatabase.app/';
+    const DB_ROOT = 'netlogic_portal_v2';
+    const POLL_MS = 8000;
+
+    function parseIsoDate(isoStr) {
+      const [y, m, d] = isoStr.split('-').map(Number);
+      return new Date(Date.UTC(y, m - 1, d));
+    }
+    function formatIsoDate(dateObj) {
+      const y = dateObj.getUTCFullYear();
+      const m = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    function addDaysIso(isoStr, deltaDays) {
+      const dt = parseIsoDate(isoStr);
+      dt.setUTCDate(dt.getUTCDate() + deltaDays);
+      return formatIsoDate(dt);
+    }
+    function todayIso() { return new Date(Date.now() + 19800000).toISOString().slice(0, 10); } // India (IST) date
+    function techDate(t) { return (t && t.currentDate) || (state && state.currentDate) || todayIso(); }
+
+    let state = null;
+    let activeTechUsername = sessionStorage.getItem(SESSION_TECH_KEY) || null;
+
+    // ================= ONLINE (FIREBASE) SYNC =================
+    function getCloudUrl() {
+      const c = (FIREBASE_URL || '').trim();
+      if (c && !c.includes('PASTE_YOUR')) return c.replace(/\/+$/, '');
+      return (localStorage.getItem(CLOUD_URL_KEY) || '').trim().replace(/\/+$/, '');
+    }
+
+    let cloudBusy = 0;
+    let pendingPush = false;
+    let lastRemoteRaw = '';
+    let saveTimer = null;
+
+    function setSyncBadge(ok) {
+      const el = document.getElementById('liveSyncIndicator');
+      if (!el) return;
+      const base = 'text-[11px] px-2 py-0.5 rounded-full border ';
+      if (!getCloudUrl()) {
+        el.className = base + 'bg-amber-950 text-amber-300 border-amber-700/60';
+        el.innerHTML = '<i class="fa-solid fa-hard-drive mr-1"></i>Local only (not online)';
+      } else if (ok) {
+        const t = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        el.className = base + 'bg-emerald-950 text-emerald-300 border-emerald-700/60';
+        el.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-1"></i>Online • synced ' + t;
+      } else {
+        el.className = base + 'bg-red-950 text-red-300 border-red-700/60';
+        el.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>Offline — retrying';
+      }
+    }
+
+    async function cloudReq(method, path, body) {
+      const base = getCloudUrl();
+      if (!base) return { ok: false, off: true };
+      const url = `${base}/${DB_ROOT}${path ? '/' + path : ''}.json` + (method === 'GET' ? '?t=' + Date.now() : '');
+      cloudBusy++;
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: method === 'GET' ? undefined : { 'Content-Type': 'application/json' },
+          body: body === undefined ? undefined : JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        setSyncBadge(true);
+        return { ok: true, data };
+      } catch (err) {
+        console.warn('Cloud error:', method, path, err);
+        setSyncBadge(false);
+        return { ok: false };
+      } finally {
+        cloudBusy--;
+      }
+    }
+
+    // Firebase drops empty arrays, so rebuild them after every download
+    function normalizeTech(t, fallbackDate) {
+      t.project = t.project || {};
+      ['carryOverTasks', 'todayTasks', 'completedTasks', 'eodHistory', 'notifications', 'leaves'].forEach(k => {
+        if (!t[k]) t[k] = [];
+        else if (!Array.isArray(t[k])) t[k] = Object.values(t[k]);
+      });
+      t.project.team = Array.isArray(t.project.team) ? t.project.team : Object.values(t.project.team || {});
+      t.eodStatus = t.eodStatus || 'none';   // none | pending | rejected
+      t.currentDate = t.currentDate || fallbackDate || todayIso();
+      return t;
+    }
+    function remoteToState(remote) {
+      const rt = remote.technicians || {};
+      const fallback = remote.currentDate || todayIso();
+      return {
+        currentDate: fallback,
+        lastUpdatedAt: remote.lastUpdatedAt || new Date().toISOString(),
+        technicians: Object.keys(rt).map(k => normalizeTech(rt[k], fallback))
+      };
+    }
+
+    function isTyping() {
+      const a = document.activeElement;
+      if (!a || !['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName)) return false;
+      return !a.closest('#loginView');
+    }
+
+    async function pullFromCloud(silent = true) {
+      if (!getCloudUrl() || cloudBusy > 0 || pendingPush) return;
+      const r = await cloudReq('GET', '');
+      if (!r.ok || cloudBusy > 0 || pendingPush) return;
+      if (r.data === null) return;                  // database empty — admin page will initialise it
+      const raw = JSON.stringify(r.data);
+      if (raw === lastRemoteRaw) return;
+      if (isTyping()) return;                       // don't disturb someone who is typing; retry next cycle
+      lastRemoteRaw = raw;
+      state = remoteToState(r.data);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+      syncAlignedProjectsToSharedStore();
+      checkMissedEod();
+      renderWorkspace();
+      if (!silent) showToast('Synced latest data from Cloud.');
+    }
+
+    // Save only this technician's day/EOD fields (project/login stay untouched)
+    function cloudSaveTech(t) {
+      return cloudReq('PATCH', `technicians/${t.username}`, {
+        todayTasks: t.todayTasks,
+        carryOverTasks: t.carryOverTasks,
+        completedTasks: t.completedTasks,
+        eodHistory: t.eodHistory,
+        notifications: t.notifications,
+        eodStatus: t.eodStatus,
+        eodSubmission: t.eodSubmission || null,
+        eodRejectReason: t.eodRejectReason || null,
+        currentDate: t.currentDate
+      });
+    }
+
+    // Debounced cloud save for the active technician. immediate=true waits for the upload.
+    function queueCloudSave(immediate = false) {
+      clearTimeout(saveTimer);
+      pendingPush = true;
+      const run = async () => {
+        const t = getActiveTech();
+        try { if (t) await cloudSaveTech(t); }
+        finally { pendingPush = false; }
+      };
+      if (immediate) return run();
+      saveTimer = setTimeout(run, 700);
+      return Promise.resolve();
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.technicians) && parsed.currentDate) {
+            parsed.technicians.forEach(t => normalizeTech(t, parsed.currentDate));
+            state = parsed;
+            return;
+          }
+        }
+      } catch (err) { console.warn('State parse fallback:', err); }
+      state = { currentDate: todayIso(), lastUpdatedAt: new Date().toISOString(), technicians: [] };
+    }
+
+    function saveLocal() {
+      state.lastUpdatedAt = new Date().toISOString();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        syncAlignedProjectsToSharedStore();
+      } catch (err) {
+        showToast('Could not save state to browser storage.', 'error');
+      }
+    }
+
+    // Local save + queued cloud save for the active technician
+    function saveState(notify = true, immediate = false) {
+      saveLocal();
+      if (notify) showToast('Synced to Main Report Page');
+      return queueCloudSave(immediate);
+    }
+
+    function syncAlignedProjectsToSharedStore() {
+      try {
+        const existing = JSON.parse(localStorage.getItem(SHARED_PROJECTS_KEY) || '[]');
+        const list = Array.isArray(existing) ? existing : [];
+        state.technicians.forEach(tech => {
+          if (!tech.project || !tech.project.projectName) return;
+          const prjId = 'ALIGN-' + tech.username.toUpperCase();
+          const idx = list.findIndex(item => item.id === prjId);
+          const record = {
+            id: prjId,
+            name: tech.project.projectName,
+            location: tech.project.location,
+            pm: tech.project.pm,
+            technicianUser: tech.username,
+            technicianPass: tech.pin,
+            progress: Number(tech.project.progress) || 0,
+            remark: tech.project.scope,
+            dispatchStatus: 'Delivered',
+            updatedAt: state.currentDate
+          };
+          if (idx !== -1) list[idx] = { ...list[idx], ...record };
+          else list.unshift(record);
+        });
+        localStorage.setItem(SHARED_PROJECTS_KEY, JSON.stringify(list));
+      } catch (_) {}
+    }
+
+    function esc(str = '') {
+      return String(str).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
+    function showToast(message, type = 'success') {
+      const box = document.getElementById('toastBox');
+      box.className = `fixed bottom-4 right-4 z-50 px-4 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-medium flex items-center gap-2 ${
+        type === 'error' ? 'bg-red-600 text-white' : type === 'warn' ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'
+      }`;
+      box.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : type === 'warn' ? 'fa-circle-info' : 'fa-circle-check'}"></i><span>${esc(message)}</span>`;
+      box.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => box.classList.add('hidden'), 3200);
+    }
+
+    function getActiveTech() {
+      return state.technicians.find(t => t.username === activeTechUsername) || null;
+    }
+    function isLocked(tech) { return !!tech && tech.eodStatus === 'pending'; }
+    function guardLocked(tech) {
+      if (isLocked(tech)) {
+        showToast('EOD admin approval pending hai — abhi naya kaam add/edit nahi ho sakta.', 'error');
+        renderWorkspace();
+        return true;
+      }
+      return false;
+    }
+
+    // ================= NOTIFICATIONS / MISSED EOD =================
+    // Same logic as main_report.html (ids are identical, so no duplicates)
+    function pushNotif(tech, id, type, text) {
+      tech.notifications = tech.notifications || [];
+      if (tech.notifications.some(n => n.id === id)) return false;
+      tech.notifications.unshift({ id, type, text, date: todayIso(), at: new Date().toISOString(), read: false });
+      tech.notifications = tech.notifications.slice(0, 30);
+      return true;
+    }
+
+    function isOnLeave(t, d) { return (t.leaves || []).some(l => l.from <= d && d <= l.to); }
+
+    // Chutti ke din ka EOD zaroori nahi: din apne aap aage badh jata hai (jab tak us din koi task/EOD pending na ho)
+    function advanceLeaveDays(t) {
+      if (t.eodStatus !== 'none' || (t.todayTasks || []).length) return false;
+      const today = todayIso();
+      let moved = false;
+      t.eodHistory = t.eodHistory || [];
+      while (isOnLeave(t, t.currentDate) && t.currentDate < today) {
+        const d = t.currentDate;
+        if (!t.eodHistory.some(h => h.date === d && h.leave)) {
+          t.eodHistory.unshift({ date: d, completedCount: 0, pendingCount: 0, leave: true, note: 'On leave — EOD required nahi.' });
+        }
+        t.currentDate = addDaysIso(d, 1);
+        moved = true;
+      }
+      return moved;
+    }
+
+    function checkMissedEod() {
+      const tech = state && getActiveTech();
+      if (!tech || tech.eodStatus === 'pending') return false;
+      const today = todayIso();
+      const istHour = new Date(Date.now() + 19800000).getUTCHours();
+      const moved = advanceLeaveDays(tech);
+      const d = techDate(tech);
+      if (isOnLeave(tech, d) || isOnLeave(tech, today)) {   // chutti par — EOD / reminder nahi
+        if (moved) { saveLocal(); queueCloudSave(false); }
+        return moved;
+      }
+      let hit = false;
+      if (d < today) {
+        hit = pushNotif(tech, 'eodmiss-' + d, 'eod_missed',
+          `⚠️ ${d} ka EOD submit nahi hua. Pehle EOD submit karein; admin approve karega tab hi naya kaam add hoga.`);
+      } else if (d === today && istHour >= 18) {
+        hit = pushNotif(tech, 'eodrem-' + d, 'eod_reminder',
+          `🔔 Aaj (${d}) ka EOD abhi tak submit nahi hua. Please submit karein.`);
+      }
+      if (hit || moved) { saveLocal(); queueCloudSave(false); }
+      return hit || moved;
+    }
+
+    function markNotifRead(id) {
+      const tech = getActiveTech();
+      if (!tech) return;
+      const n = (tech.notifications || []).find(x => x.id === id);
+      if (!n || n.read) return;
+      n.read = true;
+      saveState(false);
+      renderWorkspace();
+    }
+    function markAllNotifRead() {
+      const tech = getActiveTech();
+      if (!tech) return;
+      (tech.notifications || []).forEach(n => { n.read = true; });
+      saveState(false);
+      renderWorkspace();
+    }
+    function scrollToNotifs() {
+      const p = document.getElementById('notifPanel');
+      if (p && !p.classList.contains('hidden')) p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      else showToast('Koi notification nahi hai.', 'warn');
+    }
+
+    // ================= SESSION / LOGIN =================
+    function applySessionView() {
+      const tech = getActiveTech();
+      const loggedIn = Boolean(tech);
+      document.getElementById('loginView').classList.toggle('hidden', loggedIn);
+      document.getElementById('techWorkspaceView').classList.toggle('hidden', !loggedIn);
+      document.getElementById('techSessionNavGroup').classList.toggle('hidden', !loggedIn);
+      if (loggedIn) {
+        document.getElementById('headerTechChip').textContent = `${tech.name} (@${tech.username})`;
+      }
+    }
+
+    async function handleTechnicianLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('loginUsername').value.trim().toLowerCase();
+      const pin = document.getElementById('loginPin').value.trim();
+      const errEl = document.getElementById('loginErrorMsg');
+      const find = () => state.technicians.find(t => t.username.toLowerCase() === user && String(t.pin) === pin);
+
+      let found = find();
+      if (!found && getCloudUrl()) {            // naya technician ho sakta hai — cloud se latest lo aur dobara try karo
+        lastRemoteRaw = '';
+        await pullFromCloud(true);
+        found = find();
+      }
+      if (!found) {
+        errEl.textContent = 'Invalid Technician Username or Password/PIN.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      errEl.classList.add('hidden');
+      activeTechUsername = found.username;
+      sessionStorage.setItem(SESSION_TECH_KEY, activeTechUsername);
+      checkMissedEod();
+      applySessionView();
+      setTechSubtab('project');
+      renderWorkspace();
+      const unread = (found.notifications || []).filter(n => !n.read).length;
+      showToast(unread ? `Welcome, ${found.name}! ${unread} nayi notification hai.` : `Welcome, ${found.name}!`, unread ? 'warn' : 'success');
+    }
+
+    function logoutTechnician() {
+      activeTechUsername = null;
+      sessionStorage.removeItem(SESSION_TECH_KEY);
+      applySessionView();
+      renderQuickFillButtons();
+      document.title = 'Netlogic Systems — Technician Portal';
+      showToast('Logged out from Technician Portal.', 'warn');
+    }
+
+    function renderQuickFillButtons() {
+      const wrap = document.getElementById('quickFillButtons');
+      wrap.innerHTML = state.technicians.length
+        ? state.technicians.map(t => `
+            <button type="button" onclick="quickFillTech('${esc(t.username)}')" class="bg-slate-900 hover:bg-slate-700 text-cyan-300 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition">
+              ${esc(t.name)} (${esc(t.username)})
+            </button>
+          `).join('')
+        : '<span class="text-xs text-slate-500">Technician list load ho rahi hai...</span>';
+    }
+
+    function quickFillTech(username) {
+      const found = state.technicians.find(t => t.username === username);
+      document.getElementById('loginUsername').value = username;
+      document.getElementById('loginPin').value = found ? found.pin : '1234';
+      document.getElementById('loginErrorMsg').classList.add('hidden');
+    }
+
+    function setTechSubtab(subtab) {
+      const isProject = subtab === 'project';
+      document.getElementById('techProjectPanel').classList.toggle('hidden', !isProject);
+      document.getElementById('techTasksPanel').classList.toggle('hidden', isProject);
+
+      document.getElementById('subtabProject').className = isProject
+        ? 'bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition flex items-center gap-2 shadow'
+        : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-700 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition flex items-center gap-2';
+
+      document.getElementById('subtabTasks').className = !isProject
+        ? 'bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition flex items-center gap-2 shadow'
+        : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-700 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition flex items-center gap-2';
+    }
+
+    // ================= RENDER =================
+    function renderWorkspace() {
+      document.getElementById('simDateText').textContent = todayIso();
+      renderQuickFillButtons();
+      applySessionView();
+
+      const tech = getActiveTech();
+      if (!tech) return;
+
+      const locked = isLocked(tech);
+      const date = techDate(tech);
+      const status = tech.eodStatus || 'none';
+
+      document.getElementById('wsTechFullName').textContent = tech.name;
+      document.getElementById('wsTechUsernameBadge').textContent = '@' + tech.username;
+      document.getElementById('wsAlignedSubtitle').textContent =
+        `Aligned Site: ${tech.project.projectName || '—'} (${tech.project.location || '—'}) • PM: ${tech.project.pm || '—'}`;
+
+      // EOD status badge
+      const badge = document.getElementById('wsEodStatusBadge');
+      const bm = {
+        none:     ['bg-blue-950 text-blue-300 border-blue-700/60', `<i class="fa-regular fa-calendar mr-1"></i>Working day: ${esc(date)}`],
+        pending:  ['bg-amber-950 text-amber-300 border-amber-700/60', '<i class="fa-solid fa-hourglass-half mr-1"></i>EOD approval pending'],
+        rejected: ['bg-red-950 text-red-300 border-red-700/60', '<i class="fa-solid fa-circle-xmark mr-1"></i>EOD rejected']
+      }[status] || ['bg-blue-950 text-blue-300 border-blue-700/60', esc(date)];
+      badge.className = 'text-[11px] px-2.5 py-0.5 rounded-full border ' + bm[0];
+      badge.innerHTML = bm[1];
+
+      // Banner
+      const banner = document.getElementById('eodStatusBanner');
+      if (status === 'pending') {
+        banner.className = 'rounded-2xl p-4 text-sm bg-amber-950/60 border border-amber-700/60 text-amber-200';
+        banner.innerHTML = `<i class="fa-solid fa-hourglass-half mr-2"></i><b>${esc(date)}</b> ka EOD admin ko bhej diya gaya hai. Admin approve karega tab tak din ka record final nahi hoga aur <b>naya task add/edit nahi hoga</b>.`;
+      } else if (status === 'rejected') {
+        banner.className = 'rounded-2xl p-4 text-sm bg-red-950/60 border border-red-700/60 text-red-200';
+        banner.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i>Admin ne <b>${esc(date)}</b> ka EOD reject kiya: <b>${esc(tech.eodRejectReason || 'Please correct karke dobara submit karein.')}</b><br><span class="text-xs">Tasks / reasons sudhar kar EOD dobara submit karein.</span>`;
+      } else if (isOnLeave(tech, todayIso())) {
+        banner.className = 'rounded-2xl p-4 text-sm bg-cyan-950/60 border border-cyan-700/60 text-cyan-200';
+        banner.innerHTML = '<i class="fa-solid fa-umbrella-beach mr-2"></i>Aaj aap <b>chutti par</b> ho — aaj EOD ya reminder nahi aayega.';
+      } else if (date < todayIso() && !isOnLeave(tech, date)) {
+        banner.className = 'rounded-2xl p-4 text-sm bg-amber-950/60 border border-amber-700/60 text-amber-200';
+        banner.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-2"></i><b>${esc(date)}</b> ka EOD abhi tak submit nahi hua. Pehle EOD submit karein.`;
+      } else {
+        banner.className = 'hidden';
+        banner.innerHTML = '';
+      }
+
+      // Notifications
+      const notifs = tech.notifications || [];
+      const unread = notifs.filter(n => !n.read).length;
+      document.getElementById('notifPanel').classList.toggle('hidden', !notifs.length);
+      document.getElementById('notifUnreadPill').textContent = `${unread} new`;
+      document.getElementById('notifList').innerHTML = notifs.slice(0, 6).map(n => `
+        <div class="flex items-start justify-between gap-3 rounded-xl px-3 py-2 text-xs border ${n.read ? 'bg-slate-900/60 border-slate-700/60 text-slate-400' : 'bg-indigo-950/50 border-indigo-600/60 text-indigo-100'}">
+          <div>
+            <p>${esc(n.text)}</p>
+            <p class="text-[10px] font-mono text-slate-500 mt-0.5">${esc(n.date || '')}</p>
+          </div>
+          ${n.read ? '' : `<button type="button" onclick="markNotifRead('${esc(n.id)}')" class="text-blue-400 hover:text-blue-300 shrink-0 cursor-pointer">Mark read</button>`}
+        </div>
+      `).join('');
+      const bell = document.getElementById('bellCount');
+      bell.textContent = unread;
+      bell.classList.toggle('hidden', !unread);
+      document.title = (unread ? `(${unread}) ` : '') + 'Netlogic Systems — Technician Portal';
+
+      const pendingTotal = (tech.carryOverTasks || []).length + (tech.todayTasks || []).filter(x => !x.completed).length;
+      document.getElementById('wsPendingCountPill').textContent = `${pendingTotal} Pending`;
+
+      // Project tab
+      const prog = Number(tech.project.progress) || 0;
+      document.getElementById('projTabTitle').textContent = tech.project.projectName || 'Aligned Site Project';
+      document.getElementById('projTabLocation').innerHTML = `<i class="fa-solid fa-location-dot mr-1.5 text-rose-400"></i>${esc(tech.project.location || '—')}`;
+      document.getElementById('projTabPm').textContent = tech.project.pm || '—';
+      document.getElementById('projTabScope').textContent = tech.project.scope || 'No scope notes provided.';
+      document.getElementById('projTabProgressText').textContent = `${prog}%`;
+      document.getElementById('projTabProgressBar').style.width = `${prog}%`;
+      if (document.activeElement !== document.getElementById('projTabProgressInput')) {
+        document.getElementById('projTabProgressInput').value = prog;
+      }
+
+      const teamEl = document.getElementById('projTabTeam');
+      const mates = (tech.project.team || []).filter(u => u !== tech.username);
+      if (mates.length) {
+        teamEl.innerHTML = `<i class="fa-solid fa-users mr-1.5 text-cyan-400"></i>Saath me: ${mates.map(u => { const m = state.technicians.find(x => x.username === u); return esc(m ? m.name : u); }).join(', ')}`;
+        teamEl.classList.remove('hidden');
+      } else {
+        teamEl.classList.add('hidden');
+      }
+
+      const allProjectTasks = [
+        ...(tech.carryOverTasks || []).map(x => ({ ...x, statusLabel: `Carry-Over (${x.originDate})`, cls: 'text-amber-300' })),
+        ...(tech.todayTasks || []).map(x => ({ ...x, statusLabel: x.completed ? 'Completed Today' : 'Today Open', cls: x.completed ? 'text-emerald-300' : 'text-blue-300' }))
+      ];
+      document.getElementById('projTabTasksSummary').innerHTML = allProjectTasks.length
+        ? allProjectTasks.map(x => `
+            <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 rounded-lg px-3 py-2">
+              <span>${esc(x.title)}</span>
+              <span class="text-[11px] font-semibold ${x.cls}">${esc(x.statusLabel)}</span>
+            </div>
+          `).join('')
+        : '<p class="text-slate-500">No tasks logged yet for this aligned project.</p>';
+
+      // Tasks tab header + lock state
+      document.getElementById('morningTaskDate').textContent = date;
+      document.getElementById('morningAlignedProjectLabel').textContent = tech.project.projectName || '—';
+      ['newTaskTitle', 'newTaskNote', 'addTaskBtn', 'eodNoteInput'].forEach(id => { document.getElementById(id).disabled = locked; });
+
+      const eodBtn = document.getElementById('eodSubmitBtn');
+      eodBtn.disabled = locked;
+      eodBtn.classList.toggle('opacity-60', locked);
+      eodBtn.innerHTML = locked
+        ? '<i class="fa-solid fa-hourglass-half"></i> Waiting for Admin Approval'
+        : `<i class="fa-solid fa-paper-plane"></i> ${status === 'rejected' ? 'Resubmit EOD for Admin Approval' : 'Submit EOD for Admin Approval'}`;
+
+      // Carry-over list
+      const carryList = tech.carryOverTasks || [];
+      document.getElementById('carryOverBadge').textContent = `${carryList.length} Carry-Over`;
+      document.getElementById('carryOverList').innerHTML = carryList.length
+        ? carryList.map(co => `
+            <div class="bg-slate-900/90 border border-amber-700/50 rounded-xl p-3 space-y-2">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-mono bg-amber-950 text-amber-300 border border-amber-700/60 px-2 py-0.5 rounded">Origin: ${esc(co.originDate)}</span>
+                    <span class="font-semibold text-sm text-white">${esc(co.title)}</span>
+                  </div>
+                  ${co.note ? `<p class="text-xs text-slate-400 mt-0.5">${esc(co.note)}</p>` : ''}
+                </div>
+                <button type="button" ${locked ? 'disabled' : ''} onclick="completeCarryOverTask('${esc(co.id)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition shrink-0 ${locked ? 'opacity-50 cursor-not-allowed' : ''}">
+                  <i class="fa-solid fa-check mr-1"></i>Mark Completed
+                </button>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
+                <span class="text-amber-300 font-medium shrink-0"><i class="fa-solid fa-comment-dots mr-1"></i>Pending Reason:</span>
+                <input type="text" ${locked ? 'disabled' : ''} value="${esc(co.pendingReason || '')}" onchange="updateCarryOverReason('${esc(co.id)}', this.value)" placeholder="Enter why this task is still pending..." class="field !py-1.5 text-xs" />
+              </div>
+            </div>
+          `).join('')
+        : '<div class="text-xs text-slate-400 bg-slate-900/50 border border-slate-700/50 rounded-xl p-3">No carried-over pending tasks from earlier days.</div>';
+
+      // Today's tasks
+      const todayList = tech.todayTasks || [];
+      document.getElementById('todayTasksList').innerHTML = todayList.length
+        ? todayList.map(tsk => `
+            <div class="bg-slate-900/85 border ${tsk.completed ? 'border-emerald-700/60' : 'border-slate-700'} rounded-xl p-3.5 space-y-2.5">
+              <div class="flex items-start justify-between gap-3">
+                <label class="flex items-start gap-3 ${locked ? 'cursor-not-allowed' : 'cursor-pointer'} flex-1">
+                  <input type="checkbox" ${tsk.completed ? 'checked' : ''} ${locked ? 'disabled' : ''} onchange="toggleTodayTaskChecked('${esc(tsk.id)}', this.checked)" class="mt-1 w-4 h-4 rounded accent-emerald-500 ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}" />
+                  <div>
+                    <span class="text-sm font-semibold ${tsk.completed ? 'line-through text-emerald-400' : 'text-white'}">${esc(tsk.title)}</span>
+                    ${tsk.note ? `<p class="text-xs text-slate-400 mt-0.5">${esc(tsk.note)}</p>` : ''}
+                  </div>
+                </label>
+                ${locked ? '' : `
+                  <button type="button" onclick="deleteTodayTask('${esc(tsk.id)}')" title="Delete task" class="text-slate-500 hover:text-red-400 text-xs px-2 py-1 cursor-pointer transition">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>`}
+              </div>
+
+              ${!tsk.completed ? `
+                <div class="pl-7 flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
+                  <span class="text-amber-300 font-medium shrink-0"><i class="fa-solid fa-pen-to-square mr-1"></i>Pending Remark (if incomplete at EOD):</span>
+                  <input type="text" ${locked ? 'disabled' : ''} value="${esc(tsk.pendingReason || '')}" oninput="updateTodayTaskPendingReason('${esc(tsk.id)}', this.value)" placeholder="Reason why task is not completed (e.g. material/cable/client delay)..." class="field !py-1.5 text-xs" />
+                </div>
+              ` : `
+                <div class="pl-7 text-[11px] text-emerald-400 font-medium">
+                  <i class="fa-solid fa-check-double mr-1"></i>Marked completed for EOD
+                </div>
+              `}
+            </div>
+          `).join('')
+        : '<div class="text-xs text-slate-400 bg-slate-900/60 border border-slate-700/60 rounded-xl p-4 text-center">No tasks added for today yet. Use the Morning Task Entry form above to add tasks.</div>';
+
+      // Approved completed tasks + approved EOD history
+      const compList = tech.completedTasks || [];
+      document.getElementById('completedTodayList').innerHTML = compList.length
+        ? compList.map(c => `
+            <div class="bg-slate-900/80 border border-emerald-800/40 rounded-lg p-2.5 flex items-center justify-between gap-2">
+              <div>
+                <p class="font-medium text-emerald-200">${esc(c.title)}</p>
+                ${c.note ? `<p class="text-[11px] text-slate-400">${esc(c.note)}</p>` : ''}
+              </div>
+              <span class="text-[10px] font-mono text-emerald-400 shrink-0">${esc(c.completedDate || '')}</span>
+            </div>
+          `).join('')
+        : '<p class="text-slate-500">Abhi koi approved completed task nahi.</p>';
+
+      const histList = tech.eodHistory || [];
+      document.getElementById('eodHistoryList').innerHTML = histList.length
+        ? histList.map(h => `
+            <div class="bg-slate-900/80 border border-slate-700/70 rounded-lg p-2.5 space-y-1">
+              <div class="flex justify-between items-center">
+                <span class="font-mono font-bold text-cyan-300">${esc(h.date)}</span>
+                <span class="text-[11px] text-slate-400">Done: <b class="text-emerald-400">${h.completedCount}</b> • Moved Pending: <b class="text-amber-400">${h.pendingCount}</b></span>
+              </div>
+              <p class="text-slate-300">${esc(h.note)}</p>
+            </div>
+          `).join('')
+        : '<p class="text-slate-500">Abhi koi EOD approve nahi hua.</p>';
+    }
+
+    // ================= ACTIONS =================
+    function handleTechProgressUpdate(e) {
+      e.preventDefault();
+      const tech = getActiveTech();
+      if (!tech) return;
+      const val = Math.max(0, Math.min(100, Number(document.getElementById('projTabProgressInput').value) || 0));
+      // same site par saath wale technicians ka progress bhi update
+      const users = new Set([tech.username, ...(tech.project.team || [])]);
+      users.forEach(u => {
+        const m = state.technicians.find(x => x.username === u);
+        if (!m) return;
+        m.project.progress = val;
+        cloudReq('PATCH', `technicians/${u}/project`, { progress: val });
+      });
+      saveLocal();
+      showToast('Synced to Main Report Page');
+      renderWorkspace();
+    }
+
+    function handleAddDailyTask(e) {
+      e.preventDefault();
+      const tech = getActiveTech();
+      if (!tech || guardLocked(tech)) return;
+      const titleInput = document.getElementById('newTaskTitle');
+      const noteInput = document.getElementById('newTaskNote');
+      const title = titleInput.value.trim();
+      const note = noteInput.value.trim();
+      if (!title) return;
+
+      tech.todayTasks = tech.todayTasks || [];
+      tech.todayTasks.push({
+        id: 'tsk-' + Date.now().toString().slice(-6) + '-' + Math.floor(Math.random() * 90 + 10),
+        title,
+        note,
+        completed: false,
+        pendingReason: ''
+      });
+
+      titleInput.value = '';
+      noteInput.value = '';
+      saveState(true);
+      renderWorkspace();
+    }
+
+    function toggleTodayTaskChecked(taskId, checked) {
+      const tech = getActiveTech();
+      if (!tech || guardLocked(tech)) return;
+      const tsk = (tech.todayTasks || []).find(x => x.id === taskId);
+      if (!tsk) return;
+      tsk.completed = Boolean(checked);
+      if (tsk.completed) {
+        tsk.pendingReason = '';
+        document.getElementById('eodValidationMsg').classList.add('hidden');
+      }
+      saveState(true);
+      renderWorkspace();
+    }
+
+    function updateTodayTaskPendingReason(taskId, reason) {
+      const tech = getActiveTech();
+      if (!tech || isLocked(tech)) return;
+      const tsk = (tech.todayTasks || []).find(x => x.id === taskId);
+      if (!tsk) return;
+      tsk.pendingReason = reason;
+      if (reason.trim()) document.getElementById('eodValidationMsg').classList.add('hidden');
+      saveState(false);
+    }
+
+    function deleteTodayTask(taskId) {
+      const tech = getActiveTech();
+      if (!tech || guardLocked(tech)) return;
+      tech.todayTasks = (tech.todayTasks || []).filter(x => x.id !== taskId);
+      saveState(true);
+      renderWorkspace();
+    }
+
+    function updateCarryOverReason(taskId, reason) {
+      const tech = getActiveTech();
+      if (!tech || guardLocked(tech)) return;
+      const co = (tech.carryOverTasks || []).find(x => x.id === taskId);
+      if (!co) return;
+      co.pendingReason = reason;
+      saveState(true);
+    }
+
+    // Carry-over complete: aaj ki list me CHECKED task ban jata hai — final record admin approval ke baad hi banega
+    function completeCarryOverTask(taskId) {
+      const tech = getActiveTech();
+      if (!tech || guardLocked(tech)) return;
+      const idx = (tech.carryOverTasks || []).findIndex(x => x.id === taskId);
+      if (idx === -1) return;
+      const [item] = tech.carryOverTasks.splice(idx, 1);
+      tech.todayTasks = tech.todayTasks || [];
+      tech.todayTasks.push({
+        id: item.id,
+        title: item.title,
+        note: item.note ? `${item.note} (carry-over from ${item.originDate})` : `Carry-over from ${item.originDate}`,
+        completed: true,
+        pendingReason: ''
+      });
+      saveState(true);
+      renderWorkspace();
+    }
+
+    // EOD ab seedha rollover nahi karta — admin approval ke liye submit hota hai
+    async function submitEod() {
+      const tech = getActiveTech();
+      if (!tech || guardLocked(tech)) return;
+
+      const todayList = tech.todayTasks || [];
+      const unchecked = todayList.filter(x => !x.completed);
+      const valMsg = document.getElementById('eodValidationMsg');
+
+      if (!todayList.length) {
+        valMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1.5"></i>Aaj ka koi task add nahi hai. Pehle kam se kam ek task add karein.';
+        valMsg.classList.remove('hidden');
+        return;
+      }
+      const missing = unchecked.find(tsk => !tsk.pendingReason || !tsk.pendingReason.trim());
+      if (missing) {
+        valMsg.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1.5"></i>Please enter a <b>Pending Reason / Remark</b> for unchecked task: "<b>${esc(missing.title)}</b>" before submitting EOD.`;
+        valMsg.classList.remove('hidden');
+        showToast('Pending reason is required for all unchecked tasks at EOD.', 'error');
+        return;
+      }
+      valMsg.classList.add('hidden');
+
+      if (!confirm('EOD submit karne ke baad admin approve karega tab tak naya kaam add/edit nahi kar paoge. Submit karein?')) return;
+
+      tech.eodStatus = 'pending';
+      tech.eodSubmission = {
+        date: techDate(tech),
+        submittedAt: new Date().toISOString(),
+        note: (document.getElementById('eodNoteInput').value || '').trim()
+      };
+      tech.eodRejectReason = null;
+      document.getElementById('eodNoteInput').value = '';
+      saveLocal();
+      renderWorkspace();
+      await queueCloudSave(true);
+      showToast('EOD admin ko bhej diya gaya — approval ka wait karein.', 'warn');
+    }
+
+    // Same-browser tabs (admin page changes)
+    window.addEventListener('storage', e => {
+      if (e.key === STORAGE_KEY && !isTyping()) {
+        loadState();
+        renderWorkspace();
+      }
+    });
+
+    // Optional query parameter ?tech=tech_vinay to prefill login
+    const params = new URLSearchParams(window.location.search);
+    const prefillTech = params.get('tech');
+
+    loadState();
+    setSyncBadge(true);
+    if (prefillTech && !activeTechUsername) quickFillTech(prefillTech);
+    checkMissedEod();
+    renderWorkspace();
+    if (getCloudUrl()) {
+      pullFromCloud(true);
+      setInterval(() => { if (!document.hidden) pullFromCloud(true); }, POLL_MS);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) pullFromCloud(true); });
+    }
+    // har 5 minute me missed / shaam 6 baje ke baad EOD reminder check
+    setInterval(() => { if (!document.hidden && checkMissedEod()) renderWorkspace(); }, 300000);
+  </script>
+</body>
+</html>
