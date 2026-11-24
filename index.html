@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Netlogic Systems — Main Admin Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
+    input, select, textarea { color-scheme: dark; }
+    .field {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 0.65rem;
+      padding: 0.6rem 0.75rem;
+      color: #f1f5f9;
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .field:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    }
+    .progress-bar { transition: width 0.35s ease; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body class="min-h-full bg-slate-900 text-slate-100 flex flex-col">
+
+  <!-- ADMIN LOGIN GATE -->
+  <div id="adminGate" class="hidden fixed inset-0 z-[100] bg-slate-900 grid place-items-center p-4">
+    <form onsubmit="checkAdminPin(event)" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 rounded-xl bg-blue-600 grid place-items-center mx-auto"><i class="fa-solid fa-lock text-white"></i></div>
+        <h2 class="text-lg font-bold text-white">Admin Login</h2>
+        <p class="text-xs text-slate-400">Netlogic Systems — Main Admin Report</p>
+      </div>
+      <input id="adminPinInput" type="password" required class="field" placeholder="Admin password" autocomplete="current-password" />
+      <p id="adminGateErr" class="hidden text-xs text-red-400">Wrong password.</p>
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl text-sm cursor-pointer">Open Admin Page</button>
+    </form>
+  </div>
+
+  <!-- TOP NAVIGATION BAR (MAIN REPORT PAGE) -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 grid place-items-center shadow-lg shadow-blue-950 shrink-0">
+          <i class="fa-solid fa-network-wired text-white"></i>
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="font-bold text-base sm:text-lg text-white">Netlogic Systems — Main Admin Report</h1>
+            <span id="simDateBadge" class="text-xs font-mono bg-blue-950 text-blue-300 border border-blue-700/60 px-2.5 py-0.5 rounded-full">
+              <i class="fa-regular fa-calendar mr-1" title="Today (IST)"></i><span id="simDateText">2026-11-19</span>
+            </span>
+            <span id="liveSyncIndicator" class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-full">
+              <i class="fa-solid fa-link mr-1"></i>Connecting...
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">All-Technician Name-Wise Daily Updates • Site Alignment • EOD Approval Monitor</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="exportExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition shadow">
+          <i class="fa-solid fa-file-excel mr-1"></i>Export Excel
+        </button>
+        <button type="button" onclick="openCloudSyncModal()" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-700/60 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition">
+          <i class="fa-solid fa-cloud mr-1"></i>Cloud Sync
+        </button>
+        <button type="button" onclick="sendReminders()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition shadow">
+          <i class="fa-solid fa-bell mr-1"></i>Send EOD Reminder
+        </button>
+        <a href="./technician_portal.html" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition shadow inline-flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>Open Technician Page
+        </a>
+        <button type="button" onclick="openResetConfirm()" class="bg-slate-800 hover:bg-red-950/70 text-slate-400 hover:text-red-300 border border-slate-700 hover:border-red-800 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition" title="Reset to Sample Data">
+          <i class="fa-solid fa-rotate-left mr-1"></i>Reset Demo
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN REPORT CONTAINER -->
+  <main class="max-w-7xl mx-auto w-full flex-1 p-4 sm:p-6 space-y-6">
+    <!-- KPI CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4">
+        <p class="text-xs text-slate-400">Active Technicians</p>
+        <p id="kpiTechs" class="text-2xl font-bold text-white mt-1">0</p>
+      </div>
+      <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4">
+        <p class="text-xs text-slate-400">Today's & Carry-Over Tasks</p>
+        <p id="kpiTodayTasks" class="text-2xl font-bold text-blue-400 mt-1">0</p>
+      </div>
+      <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4">
+        <p class="text-xs text-slate-400">Completed Tasks</p>
+        <p id="kpiCompleted" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
+      </div>
+      <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4">
+        <p class="text-xs text-slate-400">Pending Rollover Tasks</p>
+        <p id="kpiPending" class="text-2xl font-bold text-amber-400 mt-1">0</p>
+      </div>
+    </div>
+
+    <!-- CREATE TECHNICIAN ACCOUNT & ALIGN SITE PROJECT PANEL -->
+    <div class="bg-slate-800/90 border border-blue-700/50 rounded-2xl p-4 sm:p-5 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/80 pb-3">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-user-plus text-emerald-400"></i>
+            Create Technician Account & Align Site Project
+          </h2>
+          <p class="text-xs text-slate-400">Create a technician login or update an existing technician's credentials and aligned site project. Co-technicians bhi isi site par add ho sakte hain.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <input id="mainSearch" oninput="renderMainReport()" placeholder="Filter by technician, project, or site..." class="field !w-64 text-xs" />
+        </div>
+      </div>
+
+      <form id="createOrAlignTechForm" onsubmit="handleCreateOrAlignTech(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+        <label class="text-xs text-slate-300 lg:col-span-1">
+          Select Existing (Optional)
+          <select id="alignTechSelect" onchange="prefillAlignForm()" class="field mt-1"></select>
+        </label>
+        <label class="text-xs text-slate-300 lg:col-span-1">
+          Technician Name *
+          <input id="techFullNameInput" required class="field mt-1" placeholder="e.g. Rohan Verma" />
+        </label>
+        <label class="text-xs text-slate-300 lg:col-span-1">
+          Username *
+          <input id="techUsernameInput" required class="field mt-1" placeholder="e.g. tech_rohan" />
+        </label>
+        <label class="text-xs text-slate-300 lg:col-span-1">
+          Password / PIN *
+          <input id="techPasswordInput" type="text" required class="field mt-1" value="1234" placeholder="e.g. 1234" />
+        </label>
+        <label class="text-xs text-slate-300 lg:col-span-1">
+          Project Name *
+          <input id="alignProjectName" required class="field mt-1" placeholder="e.g. HDFC Branch LAN" />
+        </label>
+        <label class="text-xs text-slate-300 lg:col-span-1">
+          Site / Location *
+          <input id="alignSiteLocation" required class="field mt-1" placeholder="e.g. Andheri West, Mumbai" />
+        </label>
+
+        <label class="text-xs text-slate-300 sm:col-span-1 lg:col-span-2">
+          Project Manager (PM) *
+          <input id="alignPmName" required class="field mt-1" placeholder="e.g. Vivek" />
+        </label>
+        <label class="text-xs text-slate-300 sm:col-span-1 lg:col-span-1">
+          Site Progress %
+          <input id="alignProgress" type="number" min="0" max="100" value="0" class="field mt-1" />
+        </label>
+        <label class="text-xs text-slate-300 sm:col-span-2 lg:col-span-3">
+          Scope / Site Notes
+          <input id="alignScope" class="field mt-1" placeholder="e.g. Pull Cat6 cabling, rack dressing, AP installation..." />
+        </label>
+
+        <label class="text-xs text-slate-300 sm:col-span-2 lg:col-span-3">
+          Co-Technicians (same site par saath me — Ctrl/Cmd se multiple chunein)
+          <select id="alignCoTechs" multiple class="field mt-1 h-24"></select>
+        </label>
+        <label class="text-xs text-slate-300 sm:col-span-2 lg:col-span-2">
+          Naye Co-Technician (comma se alag, optional)
+          <input id="alignNewCoTechs" class="field mt-1" placeholder="e.g. Rahul, Amit (PIN 1234 se ban jayenge)" />
+        </label>
+
+        <div class="sm:col-span-2 lg:col-span-1 flex gap-2">
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-3 rounded-lg text-xs cursor-pointer transition shadow">
+            <i class="fa-solid fa-floppy-disk mr-1"></i>Save & Align
+          </button>
+          <button type="button" onclick="resetNewTechForm()" title="Clear for New Technician" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 px-3 rounded-lg text-xs cursor-pointer transition shrink-0">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- EOD APPROVAL PENDING PANEL -->
+    <div id="eodApprovalPanel" class="hidden bg-slate-800/90 border border-amber-600/50 rounded-2xl p-4 sm:p-5 space-y-3">
+      <h2 class="text-base font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-clipboard-check text-amber-400"></i>
+        EOD Approval Pending (<span id="eodPendingCount">0</span>)
+      </h2>
+      <p class="text-xs text-slate-400">Jab tak approve nahi hota, technician ka din ka record final nahi hoga aur wo naya kaam add nahi kar sakta.</p>
+      <div id="eodApprovalList" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
+    </div>
+
+    <!-- ALL-TECHNICIAN NAME-WISE DAILY UPDATE CARDS -->
+    <div id="allTechniciansReportGrid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+  </main>
+
+  <!-- RESET CONFIRMATION MODAL -->
+  <div id="resetModal" class="hidden fixed inset-0 z-50 bg-black/80 p-4 grid place-items-center">
+    <div class="bg-slate-800 border border-slate-600 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center gap-2.5 text-amber-400">
+        <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+        <h3 class="font-bold text-base text-white">Reset Demo Data?</h3>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed"><b class="text-red-300">Warning:</b> this DELETES all technicians, projects and tasks (also from the online database) and restores the 3 demo technicians (Vinay, Satyawan, Shyamji).</p>
+      <div class="flex justify-end gap-2 pt-1">
+        <button type="button" onclick="document.getElementById('resetModal').classList.add('hidden')" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-xs cursor-pointer">Cancel</button>
+        <button type="button" onclick="confirmResetDemo()" class="bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-2 rounded-lg text-xs cursor-pointer">Yes, Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTIONAL FIREBASE RTDB CLOUD SYNC MODAL -->
+  <div id="cloudSyncModal" class="hidden fixed inset-0 z-50 bg-black/80 p-4 grid place-items-center">
+    <div class="bg-slate-800 border border-indigo-700/60 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <h3 class="font-bold text-base text-indigo-300 flex items-center gap-2">
+          <i class="fa-solid fa-cloud"></i> Cloud Sync (Firebase RTDB)
+        </h3>
+        <button type="button" onclick="document.getElementById('cloudSyncModal').classList.add('hidden')" class="text-slate-400 hover:text-white text-xl cursor-pointer">&times;</button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Same-browser tabs sync automatically via <code class="text-blue-300">localStorage</code>. Add a Firebase Realtime Database URL to sync across separate devices/browsers.
+      </p>
+      <label class="block text-xs text-slate-300">
+        Firebase Realtime Database URL
+        <input id="firebaseUrlInput" type="url" class="field mt-1" placeholder="https://your-project-default-rtdb.firebaseio.com" />
+      </label>
+      <div class="flex justify-between gap-2 pt-1">
+        <button type="button" onclick="clearCloudSync()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-2 rounded-lg text-xs cursor-pointer">Clear URL</button>
+        <div class="flex gap-2">
+          <button type="button" onclick="document.getElementById('cloudSyncModal').classList.add('hidden')" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-xs cursor-pointer">Cancel</button>
+          <button type="button" onclick="saveAndPullCloudSync()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-lg text-xs cursor-pointer">Save & Sync</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastBox" class="hidden fixed bottom-4 right-4 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-medium flex items-center gap-2"></div>
+
+  <script>
+    // Shared keys used by both main_report.html and technician_portal.html
+    const STORAGE_KEY = 'netlogic_tech_eod_portal_v1';
+    const SHARED_PROJECTS_KEY = 'infratrack_dispatch_projects_v2';
+    const CLOUD_URL_KEY = 'netlogic_firebase_rtdb_url_v1';
+    const ADMIN_PIN = 'netlogic@2026';   // CHANGE THIS before going live
+    const ADMIN_SESSION_KEY = 'netlogic_admin_ok_v1';
+
+    function parseIsoDate(isoStr) {
+      const [y, m, d] = isoStr.split('-').map(Number);
+      return new Date(Date.UTC(y, m - 1, d));
+    }
+
+    function formatIsoDate(dateObj) {
+      const y = dateObj.getUTCFullYear();
+      const m = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function addDaysIso(isoStr, deltaDays) {
+      const dt = parseIsoDate(isoStr);
+      dt.setUTCDate(dt.getUTCDate() + deltaDays);
+      return formatIsoDate(dt);
+    }
+
+    function createDefaultState() {
+      const today = todayIso();
+      const yesterday = addDaysIso(today, -1);
+      return {
+        currentDate: today,
+        lastUpdatedAt: new Date().toISOString(),
+        technicians: [
+          {
+            username: 'tech_vinay',
+            name: 'Vinay',
+            pin: '1234',
+            project: {
+              projectName: 'HDFC Branch Core Network & Wi-Fi',
+              location: 'Andheri West, Mumbai',
+              pm: 'Vivek',
+              scope: 'Install 24-port core switch, lay 18 Cat6 drops, mount 3 ceiling APs, and label patch panel.',
+              progress: 65,
+              team: ['tech_vinay']
+            },
+            carryOverTasks: [
+              {
+                id: 'tsk-101',
+                title: 'Fluke test Nodes 13 to 18 on Floor 1',
+                note: 'Cat6 / Floor-1 Zone B',
+                originDate: yesterday,
+                pendingReason: 'Client meeting in server room blocked rack access before 5:30 PM.'
+              }
+            ],
+            todayTasks: [
+              {
+                id: 'tsk-102',
+                title: 'Mount 3 Wi-Fi 6 Access Points on ceiling',
+                note: 'AP-01, AP-02, AP-03',
+                completed: true,
+                pendingReason: ''
+              },
+              {
+                id: 'tsk-103',
+                title: 'Dress & label 24-port patch panel in MDF rack',
+                note: 'MDF Rack / Labeling',
+                completed: false,
+                pendingReason: ''
+              }
+            ],
+            completedTasks: [
+              {
+                id: 'tsk-100',
+                title: 'Pull 18 Cat6 cables from MDF to workstation zone',
+                note: 'Cat6 Cabling',
+                completedDate: yesterday
+              }
+            ],
+            eodHistory: [
+              {
+                date: yesterday,
+                completedCount: 1,
+                pendingCount: 1,
+                note: '1 task completed; 1 Fluke test task carried over due to server room access.'
+              }
+            ],
+            notifications: [],
+            eodStatus: 'none'
+          },
+        }
+
+    let state = null;
+
+    // ================= ONLINE (FIREBASE) SYNC — SHARED CODE =================
+    // STEP: apni Firebase Realtime Database URL yahan paste karein (dono files me same).
+    const FIREBASE_URL = 'https://netlogic-tracker-771cf-default-rtdb.asia-southeast1.firebasedatabase.app/';   // e.g. https://netlogic-xxxx-default-rtdb.firebaseio.com
+    const DB_ROOT = 'netlogic_portal_v2';
+    const POLL_MS = 8000;
+
+    function todayIso() { return new Date(Date.now() + 19800000).toISOString().slice(0, 10); } // India (IST) date
+    function techDate(t) { return (t && t.currentDate) || (state && state.currentDate) || todayIso(); }
+
+    function getCloudUrl() {
+      const c = (FIREBASE_URL || '').trim();
+      if (c && !c.includes('PASTE_YOUR')) return c.replace(/\/+$/, '');
+      return (localStorage.getItem(CLOUD_URL_KEY) || '').trim().replace(/\/+$/, '');
+    }
+
+    let cloudBusy = 0;
+    let pendingPush = false;
+    let lastRemoteRaw = '';
+
+    function setSyncBadge(ok) {
+      const el = document.getElementById('liveSyncIndicator');
+      if (!el) return;
+      const base = 'text-[11px] px-2 py-0.5 rounded-full border ';
+      if (!getCloudUrl()) {
+        el.className = base + 'bg-amber-950 text-amber-300 border-amber-700/60';
+        el.innerHTML = '<i class="fa-solid fa-hard-drive mr-1"></i>Local only (not online)';
+      } else if (ok) {
+        const t = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        el.className = base + 'bg-emerald-950 text-emerald-300 border-emerald-700/60';
+        el.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-1"></i>Online • synced ' + t;
+      } else {
+        el.className = base + 'bg-red-950 text-red-300 border-red-700/60';
+        el.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>Offline — retrying';
+      }
+    }
+
+    // One generic request helper. Returns {ok, data}
+    async function cloudReq(method, path, body) {
+      const base = getCloudUrl();
+      if (!base) return { ok: false, off: true };
+      const url = `${base}/${DB_ROOT}${path ? '/' + path : ''}.json` + (method === 'GET' ? '?t=' + Date.now() : '');
+      cloudBusy++;
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: method === 'GET' ? undefined : { 'Content-Type': 'application/json' },
+          body: body === undefined ? undefined : JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        setSyncBadge(true);
+        return { ok: true, data };
+      } catch (err) {
+        console.warn('Cloud error:', method, path, err);
+        setSyncBadge(false);
+        return { ok: false };
+      } finally {
+        cloudBusy--;
+      }
+    }
+
+    // Firebase drops empty arrays, so rebuild them after every download
+    function normalizeTech(t, fallbackDate) {
+      t.project = t.project || {};
+      ['carryOverTasks', 'todayTasks', 'completedTasks', 'eodHistory', 'notifications'].forEach(k => {
+        if (!t[k]) t[k] = [];
+        else if (!Array.isArray(t[k])) t[k] = Object.values(t[k]);
+      });
+      t.project.team = Array.isArray(t.project.team) ? t.project.team : Object.values(t.project.team || {});
+      t.eodStatus = t.eodStatus || 'none';   // none | pending | rejected
+      t.currentDate = t.currentDate || fallbackDate || todayIso();
+      return t;
+    }
+    function remoteToState(remote) {
+      const rt = remote.technicians || {};
+      const fallback = remote.currentDate || todayIso();
+      return {
+        currentDate: fallback,
+        lastUpdatedAt: remote.lastUpdatedAt || new Date().toISOString(),
+        technicians: Object.keys(rt).map(k => normalizeTech(rt[k], fallback))
+      };
+    }
+    function stateToRemote(s) {
+      const techs = {};
+      s.technicians.forEach(t => { techs[t.username] = t; });
+      return { currentDate: s.currentDate, lastUpdatedAt: s.lastUpdatedAt, technicians: techs };
+    }
+
+    function isTyping() {
+      const a = document.activeElement;
+      if (!a || !['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName)) return false;
+      return !a.closest('#loginView, #adminGate') && a.id !== 'mainSearch';
+    }
+
+    async function pullFromCloud(silent = true) {
+      if (!getCloudUrl() || cloudBusy > 0 || pendingPush) return;
+      const r = await cloudReq('GET', '');
+      if (!r.ok || cloudBusy > 0 || pendingPush) return;
+      if (r.data === null) { await onCloudEmpty(); return; }
+      const raw = JSON.stringify(r.data);
+      if (raw === lastRemoteRaw) return;
+      if (isTyping()) return;                       // don't disturb someone who is typing; retry next cycle
+      lastRemoteRaw = raw;
+      state = remoteToState(r.data);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+      syncAlignedProjectsToSharedStore();
+      onStateFromCloud(silent);
+    }
+
+    function startCloudPolling() {
+      if (!getCloudUrl()) { setSyncBadge(false); return; }
+      pullFromCloud(true);
+      setInterval(() => { if (!document.hidden) pullFromCloud(true); }, POLL_MS);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) pullFromCloud(true); });
+    }
+
+    // ---- Admin specific cloud actions ----
+    async function onCloudEmpty() {
+      // Database is empty (first run): upload current data as starting point
+      await cloudReq('PUT', '', stateToRemote(state));
+      lastRemoteRaw = '';
+    }
+    function onStateFromCloud(silent) {
+      checkMissedEod();
+      renderMainReport();
+    }
+    function cloudPushAll() { return cloudReq('PUT', '', stateToRemote(state)); }
+
+    async function cloudSaveAligned(username, oldUser) {
+      const t = state.technicians.find(x => x.username === username);
+      if (!t) return;
+      if (oldUser && oldUser !== username) {
+        await cloudReq('PUT', `technicians/${username}`, t);
+        await cloudReq('DELETE', `technicians/${oldUser}`);
+      } else if (oldUser) {
+        await cloudReq('PATCH', `technicians/${username}`, { name: t.name, username: t.username, pin: t.pin, project: t.project });
+      } else {
+        await cloudReq('PUT', `technicians/${username}`, t);
+      }
+    }
+
+    // Save only the day/EOD related fields of one technician (does not touch project/login)
+    function cloudSaveTech(t) {
+      return cloudReq('PATCH', `technicians/${t.username}`, {
+        todayTasks: t.todayTasks,
+        carryOverTasks: t.carryOverTasks,
+        completedTasks: t.completedTasks,
+        eodHistory: t.eodHistory,
+        notifications: t.notifications,
+        eodStatus: t.eodStatus,
+        eodSubmission: t.eodSubmission || null,
+        eodRejectReason: t.eodRejectReason || null,
+        currentDate: t.currentDate
+      });
+    }
+
+    function openCloudSyncModal() {
+      document.getElementById('firebaseUrlInput').value = getCloudUrl();
+      document.getElementById('cloudSyncModal').classList.remove('hidden');
+    }
+    function clearCloudSync() {
+      localStorage.removeItem(CLOUD_URL_KEY);
+      document.getElementById('firebaseUrlInput').value = '';
+      showToast('Cleared Firebase URL saved in this browser.', 'warn');
+    }
+    async function saveAndPullCloudSync() {
+      const url = document.getElementById('firebaseUrlInput').value.trim().replace(/\/+$/, '');
+      if (url && !/^https?:\/\//i.test(url)) { showToast('Please enter a valid http/https Firebase URL.', 'error'); return; }
+      if (url) localStorage.setItem(CLOUD_URL_KEY, url); else localStorage.removeItem(CLOUD_URL_KEY);
+      document.getElementById('cloudSyncModal').classList.add('hidden');
+      lastRemoteRaw = '';
+      await pullFromCloud(false);
+      showToast('Cloud sync checked.');
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.technicians) && parsed.currentDate) {
+            parsed.technicians.forEach(t => normalizeTech(t, parsed.currentDate));
+            state = parsed;
+            return;
+          }
+        }
+      } catch (err) { console.warn('State parse fallback:', err); }
+      state = createDefaultState();
+      state.technicians.forEach(t => normalizeTech(t, state.currentDate));
+      saveState();
+    }
+
+    // Local save only. Online push is done by the specific actions (Save & Align, Approve, Reject, Reset)
+    function saveState() {
+      state.lastUpdatedAt = new Date().toISOString();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        syncAlignedProjectsToSharedStore();
+      } catch (err) {
+        showToast('Could not save state to browser storage.', 'error');
+      }
+    }
+
+    function syncAlignedProjectsToSharedStore() {
+      try {
+        const existing = JSON.parse(localStorage.getItem(SHARED_PROJECTS_KEY) || '[]');
+        const list = Array.isArray(existing) ? existing : [];
+        state.technicians.forEach(tech => {
+          const prjId = 'ALIGN-' + tech.username.toUpperCase();
+          const idx = list.findIndex(item => item.id === prjId);
+          const record = {
+            id: prjId,
+            name: tech.project.projectName,
+            location: tech.project.location,
+            pm: tech.project.pm,
+            technicianUser: tech.username,
+            technicianPass: tech.pin,
+            progress: Number(tech.project.progress) || 0,
+            remark: tech.project.scope,
+            dispatchStatus: 'Delivered',
+            updatedAt: state.currentDate
+          };
+          if (idx !== -1) list[idx] = { ...list[idx], ...record };
+          else list.unshift(record);
+        });
+        localStorage.setItem(SHARED_PROJECTS_KEY, JSON.stringify(list));
+      } catch (_) {}
+    }
+
+    function esc(str = '') {
+      return String(str).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
+    function showToast(message, type = 'success') {
+      const box = document.getElementById('toastBox');
+      box.className = `fixed bottom-4 right-4 z-50 px-4 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-medium flex items-center gap-2 ${
+        type === 'error' ? 'bg-red-600 text-white' : type === 'warn' ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'
+      }`;
+      box.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : type === 'warn' ? 'fa-circle-info' : 'fa-circle-check'}"></i><span>${esc(message)}</span>`;
+      box.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => box.classList.add('hidden'), 3200);
+    }
+
+    // ================= NOTIFICATIONS / MISSED EOD =================
+    // Same function should also be pasted in technician.html (id-dedupe prevents duplicates)
+    function pushNotif(tech, id, type, text) {
+      tech.notifications = tech.notifications || [];
+      if (tech.notifications.some(n => n.id === id)) return false;
+      tech.notifications.unshift({ id, type, text, date: todayIso(), at: new Date().toISOString(), read: false });
+      tech.notifications = tech.notifications.slice(0, 30);
+      return true;
+    }
+
+    function checkMissedEod() {
+      if (!state) return 0;
+      const today = todayIso();
+      const istHour = new Date(Date.now() + 19800000).getUTCHours();
+      const changed = [];
+      state.technicians.forEach(t => {
+        if (t.eodStatus === 'pending') return;   // submitted, waiting for admin approval
+        const d = techDate(t);
+        let hit = false;
+        if (d < today) {
+          hit = pushNotif(t, 'eodmiss-' + d, 'eod_missed',
+            `⚠️ ${d} ka EOD submit nahi hua. Pehle EOD submit karein; admin approve karega tab hi naya kaam add hoga.`);
+        } else if (d === today && istHour >= 18) {
+          hit = pushNotif(t, 'eodrem-' + d, 'eod_reminder',
+            `🔔 Aaj (${d}) ka EOD abhi tak submit nahi hua. Please submit karein.`);
+        }
+        if (hit) changed.push(t);
+      });
+      if (changed.length) { saveState(); changed.forEach(cloudSaveTech); }
+      return changed.length;
+    }
+
+    // Manual admin reminder button
+    async function sendReminders() {
+      let n = 0;
+      state.technicians.forEach(t => {
+        if (t.eodStatus === 'pending') return;
+        if (pushNotif(t, 'eodrem-' + techDate(t) + '-' + Date.now(), 'eod_reminder',
+          `🔔 Admin reminder: ${techDate(t)} ka EOD submit karein.`)) { n++; cloudSaveTech(t); }
+      });
+      saveState();
+      renderMainReport();
+      showToast(n ? `${n} technician(s) ko reminder bheja.` : 'Koi pending reminder nahi (sabka EOD submit ho chuka).', 'warn');
+    }
+
+    // ================= EOD APPROVE / REJECT =================
+    async function approveEod(username) {
+      const tech = state.technicians.find(t => t.username === username);
+      if (!tech || tech.eodStatus !== 'pending') return;
+      const prevDate = techDate(tech);
+      const nextDate = addDaysIso(prevDate, 1);
+      const done = (tech.todayTasks || []).filter(x => x.completed);
+      const open = (tech.todayTasks || []).filter(x => !x.completed);
+
+      tech.completedTasks = tech.completedTasks || [];
+      tech.carryOverTasks = tech.carryOverTasks || [];
+      tech.eodHistory = tech.eodHistory || [];
+
+      done.forEach(x => tech.completedTasks.unshift({ id: x.id, title: x.title, note: x.note || '', completedDate: prevDate }));
+      open.forEach(x => tech.carryOverTasks.push({
+        id: x.id, title: x.title, note: x.note || '', originDate: prevDate,
+        pendingReason: (x.pendingReason || '').trim() || 'Reason nahi diya gaya.'
+      }));
+      tech.eodHistory.unshift({
+        date: prevDate,
+        completedCount: done.length,
+        pendingCount: open.length,
+        note: `Admin approved: ${done.length} completed, ${open.length} carried forward.`,
+        submittedAt: (tech.eodSubmission || {}).submittedAt || '',
+        approvedAt: new Date().toISOString()
+      });
+
+      tech.todayTasks = [];
+      tech.currentDate = nextDate;      // agla din khul gaya
+      tech.eodStatus = 'none';
+      tech.eodSubmission = null;
+      tech.eodRejectReason = null;
+      pushNotif(tech, 'eodok-' + prevDate, 'eod_approved', `✅ ${prevDate} ka EOD approve ho gaya. Ab ${nextDate} ke tasks add kar sakte hain.`);
+
+      saveState();
+      renderMainReport();
+      await cloudSaveTech(tech);
+      showToast(`${tech.name} ka EOD approve hua.`);
+    }
+
+    async function rejectEod(username) {
+      const tech = state.technicians.find(t => t.username === username);
+      if (!tech || tech.eodStatus !== 'pending') return;
+      const reason = prompt('Reject reason (technician ko dikhega):');
+      if (reason === null) return;
+      tech.eodStatus = 'rejected';
+      tech.eodRejectReason = reason.trim() || 'Please correct karke dobara submit karein.';
+      pushNotif(tech, 'eodrej-' + Date.now(), 'eod_rejected', `❌ ${techDate(tech)} ka EOD reject hua: ${tech.eodRejectReason}`);
+      saveState();
+      renderMainReport();
+      await cloudSaveTech(tech);
+      showToast(`${tech.name} ka EOD reject hua.`, 'warn');
+    }
+
+    function renderEodApprovals() {
+      const pend = state.technicians.filter(t => t.eodStatus === 'pending');
+      document.getElementById('eodApprovalPanel').classList.toggle('hidden', !pend.length);
+      document.getElementById('eodPendingCount').textContent = pend.length;
+      document.getElementById('eodApprovalList').innerHTML = pend.map(t => {
+        const done = (t.todayTasks || []).filter(x => x.completed);
+        const open = (t.todayTasks || []).filter(x => !x.completed);
+        const sub = t.eodSubmission || {};
+        return `
+          <div class="bg-slate-900 border border-amber-700/50 rounded-xl p-3 space-y-2 text-xs">
+            <div class="flex justify-between gap-2">
+              <b class="text-white">${esc(t.name)} <span class="font-mono text-cyan-300 font-normal">@${esc(t.username)}</span></b>
+              <span class="font-mono text-amber-300">${esc(sub.date || techDate(t))}</span>
+            </div>
+            <div class="text-emerald-300">Completed (${done.length}): ${done.map(x => esc(x.title)).join('; ') || '—'}</div>
+            <div class="text-amber-300">Pending (${open.length}): ${open.map(x => esc(x.title) + ' — ' + esc(x.pendingReason || 'reason nahi')).join('; ') || '—'}</div>
+            ${sub.note ? `<div class="text-slate-300">Note: ${esc(sub.note)}</div>` : ''}
+            <div class="flex gap-2 pt-1">
+              <button type="button" onclick="approveEod('${esc(t.username)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-semibold cursor-pointer">
+                <i class="fa-solid fa-check mr-1"></i>Approve
+              </button>
+              <button type="button" onclick="rejectEod('${esc(t.username)}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg font-semibold cursor-pointer">
+                <i class="fa-solid fa-xmark mr-1"></i>Reject
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function eodBadge(t) {
+      const m = {
+        none:     ['bg-slate-900 text-slate-400 border-slate-700', 'Din chalu'],
+        pending:  ['bg-amber-950 text-amber-300 border-amber-700/60', 'EOD approval pending'],
+        rejected: ['bg-red-950 text-red-300 border-red-700/60', 'EOD rejected']
+      }[t.eodStatus || 'none'] || ['bg-slate-900 text-slate-400 border-slate-700', '—'];
+      return `<span class="text-[10px] px-2 py-0.5 rounded-full border ${m[0]}">${m[1]}</span>`;
+    }
+
+    // ================= FORM: CREATE / ALIGN TECHNICIAN =================
+    function populateAlignSelect() {
+      const sel = document.getElementById('alignTechSelect');
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">-- New Technician --</option>' +
+        state.technicians.map(t => `
+          <option value="${esc(t.username)}">${esc(t.name)} (${esc(t.username)})</option>
+        `).join('');
+      if (currentVal && state.technicians.some(t => t.username === currentVal)) {
+        sel.value = currentVal;
+      }
+
+      const co = document.getElementById('alignCoTechs');
+      const keep = Array.from(co.selectedOptions).map(o => o.value);
+      co.innerHTML = state.technicians.map(t => `<option value="${esc(t.username)}">${esc(t.name)} (${esc(t.username)})</option>`).join('');
+      Array.from(co.options).forEach(o => { o.selected = keep.includes(o.value); });
+    }
+
+    function resetNewTechForm() {
+      document.getElementById('alignTechSelect').value = '';
+      document.getElementById('techFullNameInput').value = '';
+      document.getElementById('techUsernameInput').value = '';
+      document.getElementById('techPasswordInput').value = '1234';
+      document.getElementById('alignProjectName').value = '';
+      document.getElementById('alignSiteLocation').value = '';
+      document.getElementById('alignPmName').value = '';
+      document.getElementById('alignProgress').value = '0';
+      document.getElementById('alignScope').value = '';
+      document.getElementById('alignNewCoTechs').value = '';
+      Array.from(document.getElementById('alignCoTechs').options).forEach(o => { o.selected = false; });
+    }
+
+    function prefillAlignForm() {
+      const username = document.getElementById('alignTechSelect').value;
+      if (!username) {
+        resetNewTechForm();
+        return;
+      }
+      const tech = state.technicians.find(t => t.username === username);
+      if (!tech) return;
+      document.getElementById('techFullNameInput').value = tech.name || '';
+      document.getElementById('techUsernameInput').value = tech.username || '';
+      document.getElementById('techPasswordInput').value = tech.pin || '1234';
+      document.getElementById('alignProjectName').value = tech.project.projectName || '';
+      document.getElementById('alignSiteLocation').value = tech.project.location || '';
+      document.getElementById('alignPmName').value = tech.project.pm || '';
+      document.getElementById('alignProgress').value = tech.project.progress ?? 0;
+      document.getElementById('alignScope').value = tech.project.scope || '';
+      document.getElementById('alignNewCoTechs').value = '';
+      Array.from(document.getElementById('alignCoTechs').options).forEach(o => {
+        o.selected = (tech.project.team || []).includes(o.value) && o.value !== tech.username;
+      });
+    }
+
+    function handleCreateOrAlignTech(e) {
+      e.preventDefault();
+      const selectedExistingUser = document.getElementById('alignTechSelect').value;
+      const fullName = document.getElementById('techFullNameInput').value.trim();
+      const username = document.getElementById('techUsernameInput').value.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-]/g, '');
+      const pin = document.getElementById('techPasswordInput').value.trim();
+      const projectName = document.getElementById('alignProjectName').value.trim();
+      const location = document.getElementById('alignSiteLocation').value.trim();
+      const pm = document.getElementById('alignPmName').value.trim();
+      const progress = Math.max(0, Math.min(100, Number(document.getElementById('alignProgress').value) || 0));
+      const scope = document.getElementById('alignScope').value.trim();
+
+      if (!fullName || !username || !pin || !projectName || !location || !pm) {
+        showToast('Please fill all required Technician & Site Project fields.', 'error');
+        return;
+      }
+
+      const existingIdx = state.technicians.findIndex(
+        t => t.username.toLowerCase() === (selectedExistingUser || username).toLowerCase()
+      );
+      const alignedProject = { projectName, location, pm, progress, scope };
+
+      // ---- Co-technicians (same site par saath wale) ----
+      const coUsers = Array.from(document.getElementById('alignCoTechs').selectedOptions).map(o => o.value);
+      document.getElementById('alignNewCoTechs').value.split(',').map(s => s.trim()).filter(Boolean).forEach(nm => {
+        const u = 'tech_' + nm.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+        if (!u || u === 'tech_') return;
+        if (!state.technicians.some(t => t.username === u)) {
+          state.technicians.push({
+            username: u, name: nm, pin: '1234', project: {}, currentDate: todayIso(),
+            carryOverTasks: [], todayTasks: [], completedTasks: [], eodHistory: [],
+            notifications: [], eodStatus: 'none'
+          });
+        }
+        coUsers.push(u);
+      });
+      const team = [...new Set([username, ...coUsers])];
+      alignedProject.team = team;
+      team.filter(u => u !== username).forEach(u => {
+        const c = state.technicians.find(t => t.username === u);
+        if (c) c.project = { ...alignedProject };
+      });
+
+      let oldUser = null;
+
+      if (existingIdx !== -1) {
+        oldUser = state.technicians[existingIdx].username;
+        state.technicians[existingIdx].name = fullName;
+        state.technicians[existingIdx].username = username;
+        state.technicians[existingIdx].pin = pin;
+        state.technicians[existingIdx].project = alignedProject;
+        showToast(`Updated technician "${fullName}" (@${username}) & aligned "${projectName}"` + (team.length > 1 ? ` with ${team.length - 1} co-technician(s)` : ''));
+      } else {
+        state.technicians.push({
+          username,
+          name: fullName,
+          pin,
+          project: alignedProject,
+          currentDate: todayIso(),
+          carryOverTasks: [],
+          todayTasks: [],
+          completedTasks: [],
+          eodHistory: [],
+          notifications: [],
+          eodStatus: 'none'
+        });
+        showToast(`Created technician "${fullName}" (@${username}) & aligned "${projectName}"` + (team.length > 1 ? ` with ${team.length - 1} co-technician(s)` : ''));
+      }
+
+      saveState();
+      cloudSaveAligned(username, oldUser);
+      team.filter(u => u !== username).forEach(u => cloudSaveAligned(u, u));
+      populateAlignSelect();
+      document.getElementById('alignTechSelect').value = username;
+      document.getElementById('alignNewCoTechs').value = '';
+      renderMainReport();
+    }
+
+    // ================= MAIN REPORT RENDER =================
+    function renderMainReport() {
+      document.getElementById('simDateText').textContent = todayIso();
+      populateAlignSelect();
+      renderEodApprovals();
+
+      const query = (document.getElementById('mainSearch').value || '').toLowerCase().trim();
+      const filtered = state.technicians.filter(t => {
+        if (!query) return true;
+        return (
+          t.name.toLowerCase().includes(query) ||
+          t.username.toLowerCase().includes(query) ||
+          (t.project.projectName || '').toLowerCase().includes(query) ||
+          (t.project.location || '').toLowerCase().includes(query) ||
+          (t.project.pm || '').toLowerCase().includes(query)
+        );
+      });
+
+      let totalActiveTasks = 0;
+      let totalCompleted = 0;
+      let totalPending = 0;
+
+      state.technicians.forEach(t => {
+        totalActiveTasks += (t.todayTasks || []).length + (t.carryOverTasks || []).length;
+        totalCompleted += (t.completedTasks || []).length;
+        totalPending += (t.carryOverTasks || []).length + (t.todayTasks || []).filter(x => !x.completed).length;
+      });
+
+      document.getElementById('kpiTechs').textContent = state.technicians.length;
+      document.getElementById('kpiTodayTasks').textContent = totalActiveTasks;
+      document.getElementById('kpiCompleted').textContent = totalCompleted;
+      document.getElementById('kpiPending').textContent = totalPending;
+
+      const grid = document.getElementById('allTechniciansReportGrid');
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="col-span-full bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center text-xs text-slate-400">No technicians match "${esc(query)}".</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(tech => {
+        const todayOpen = (tech.todayTasks || []).filter(t => !t.completed);
+        const todayChecked = (tech.todayTasks || []).filter(t => t.completed);
+        const carryOvers = tech.carryOverTasks || [];
+        const completedList = tech.completedTasks || [];
+        const latestEod = (tech.eodHistory || [])[0];
+        const team = (tech.project.team || []);
+
+        return `
+          <article class="bg-slate-800 border border-slate-700/90 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-lg">
+            <div class="space-y-4">
+              <div class="flex items-start justify-between gap-2 border-b border-slate-700/80 pb-3">
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-lg font-bold text-white">${esc(tech.name)}</h3>
+                    <span class="text-[11px] font-mono bg-slate-900 text-cyan-300 border border-slate-700 px-2 py-0.5 rounded-md">@${esc(tech.username)}</span>
+                    <span class="text-[11px] font-mono bg-blue-950 text-blue-300 border border-blue-800/60 px-2 py-0.5 rounded-md"><i class="fa-regular fa-calendar mr-1"></i>${esc(techDate(tech))}</span>
+                    ${eodBadge(tech)}
+                  </div>
+                  <p class="text-xs text-blue-300 font-medium mt-1">
+                    <i class="fa-solid fa-diagram-project mr-1"></i>${esc(tech.project.projectName || 'No Project Aligned')}
+                  </p>
+                  <p class="text-[11px] text-slate-400">
+                    <i class="fa-solid fa-location-dot mr-1 text-rose-400"></i>${esc(tech.project.location || '—')} • PM: <b class="text-slate-200">${esc(tech.project.pm || '—')}</b>
+                  </p>
+                  ${team.length > 1 ? `<p class="text-[11px] text-slate-400"><i class="fa-solid fa-users mr-1 text-cyan-400"></i>Team: ${team.map(u => { const m = state.technicians.find(x => x.username === u); return esc(m ? m.name : u); }).join(', ')}</p>` : ''}
+                </div>
+                <a href="./technician_portal.html?tech=${encodeURIComponent(tech.username)}" class="bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition shrink-0">
+                  Tech Page <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+                </a>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-400">Aligned Site Progress</span>
+                  <span class="font-bold text-emerald-400">${Number(tech.project.progress) || 0}%</span>
+                </div>
+                <div class="h-2 bg-slate-900 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-500 progress-bar" style="width:${Number(tech.project.progress) || 0}%"></div>
+                </div>
+              </div>
+
+              <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl p-3 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-semibold text-blue-300"><i class="fa-solid fa-list-check mr-1"></i>Today's Tasks (${(tech.todayTasks || []).length})</span>
+                  <span class="text-[11px] text-slate-400">${todayChecked.length} checked / ${todayOpen.length} open</span>
+                </div>
+                ${(tech.todayTasks || []).length ? (tech.todayTasks || []).map(tsk => `
+                  <div class="flex items-start justify-between gap-2 text-xs border-t border-slate-800 pt-1.5">
+                    <div class="min-w-0">
+                      <span class="${tsk.completed ? 'line-through text-emerald-400' : 'text-slate-200'} font-medium">${esc(tsk.title)}</span>
+                      ${tsk.note ? `<p class="text-[11px] text-slate-400">${esc(tsk.note)}</p>` : ''}
+                      ${!tsk.completed && tsk.pendingReason ? `<p class="text-[11px] text-amber-300 mt-0.5"><i class="fa-solid fa-comment-dots mr-1"></i>Pending Remark: ${esc(tsk.pendingReason)}</p>` : ''}
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full shrink-0 ${tsk.completed ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/60' : 'bg-slate-800 text-slate-300 border border-slate-600'}">
+                      ${tsk.completed ? 'Checked' : 'Open'}
+                    </span>
+                  </div>
+                `).join('') : '<p class="text-xs text-slate-500">No tasks added for today yet.</p>'}
+              </div>
+
+              <div class="bg-amber-950/25 border border-amber-800/50 rounded-xl p-3 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-semibold text-amber-300"><i class="fa-solid fa-clock-rotate-left mr-1"></i>Carried-Over Pending (${carryOvers.length})</span>
+                </div>
+                ${carryOvers.length ? carryOvers.map(co => `
+                  <div class="text-xs border-t border-amber-900/50 pt-1.5 space-y-0.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="font-medium text-amber-100">${esc(co.title)}</span>
+                      <span class="text-[10px] font-mono text-amber-400">From ${esc(co.originDate)}</span>
+                    </div>
+                    <p class="text-[11px] text-amber-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Reason: ${esc(co.pendingReason || 'No reason recorded')}</p>
+                  </div>
+                `).join('') : '<p class="text-xs text-slate-500">No carried-over pending tasks.</p>'}
+              </div>
+
+              <div class="bg-emerald-950/20 border border-emerald-800/40 rounded-xl p-3 space-y-1.5">
+                <span class="text-xs font-semibold text-emerald-300 block"><i class="fa-solid fa-circle-check mr-1"></i>Completed Tasks (${completedList.length})</span>
+                ${completedList.length ? completedList.slice(0, 4).map(cmp => `
+                  <div class="text-xs text-emerald-200 flex items-center justify-between gap-2 border-t border-emerald-900/40 pt-1">
+                    <span class="truncate">${esc(cmp.title)}</span>
+                    <span class="text-[10px] font-mono text-emerald-400 shrink-0">${esc(cmp.completedDate || '')}</span>
+                  </div>
+                `).join('') : '<p class="text-xs text-slate-500">No completed tasks recorded yet.</p>'}
+              </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-700/70 rounded-xl p-3 text-xs">
+              <span class="text-[11px] uppercase tracking-wider font-semibold text-cyan-300 block mb-0.5">Latest Approved EOD</span>
+              ${latestEod
+                ? `<p class="text-slate-300"><b class="font-mono text-cyan-200">[${esc(latestEod.date)}]</b> ${esc(latestEod.note)}</p>`
+                : '<p class="text-slate-500">Abhi tak koi EOD approve nahi hua.</p>'}
+              ${tech.eodStatus === 'rejected' && tech.eodRejectReason ? `<p class="text-red-300 mt-1"><i class="fa-solid fa-circle-xmark mr-1"></i>Rejected: ${esc(tech.eodRejectReason)}</p>` : ''}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function openResetConfirm() {
+      document.getElementById('resetModal').classList.remove('hidden');
+    }
+
+    async function confirmResetDemo() {
+      state = createDefaultState();
+      state.technicians.forEach(t => normalizeTech(t, state.currentDate));
+      saveState();
+      document.getElementById('resetModal').classList.add('hidden');
+      renderMainReport();
+      await cloudPushAll();
+      showToast('Demo data restored (online too).');
+    }
+
+    // ---- Excel export (all technicians, all tasks, EOD history) ----
+    function exportExcel() {
+      if (typeof XLSX === 'undefined') { showToast('Excel library could not load — check internet.', 'error'); return; }
+      const summary = [], tasks = [], eod = [];
+      state.technicians.forEach(t => {
+        const p = t.project || {};
+        const teamNames = (p.team || []).map(u => { const m = state.technicians.find(x => x.username === u); return m ? m.name : u; }).join(', ');
+        const base = { Technician: t.name, Username: t.username, Project: p.projectName || '', Location: p.location || '', PM: p.pm || '', Team: teamNames };
+        const todayOpen = (t.todayTasks || []).filter(x => !x.completed).length;
+        summary.push({
+          ...base,
+          'Progress %': Number(p.progress) || 0,
+          'Technician Date': techDate(t),
+          'EOD Status': t.eodStatus || 'none',
+          'Open Today': todayOpen,
+          'Checked Today': (t.todayTasks || []).length - todayOpen,
+          'Carry-Over Pending': (t.carryOverTasks || []).length,
+          'Completed (Total)': (t.completedTasks || []).length,
+          Scope: p.scope || ''
+        });
+        (t.carryOverTasks || []).forEach(x => tasks.push({ ...base, Date: x.originDate, Type: 'Carry-Over', Task: x.title, Note: x.note || '', Status: 'Pending', 'Pending Reason': x.pendingReason || '' }));
+        (t.todayTasks || []).forEach(x => tasks.push({ ...base, Date: techDate(t), Type: 'Today', Task: x.title, Note: x.note || '', Status: x.completed ? 'Checked' : 'Open', 'Pending Reason': x.completed ? '' : (x.pendingReason || '') }));
+        (t.completedTasks || []).forEach(x => tasks.push({ ...base, Date: x.completedDate || '', Type: 'Completed', Task: x.title, Note: x.note || '', Status: 'Completed', 'Pending Reason': '' }));
+        (t.eodHistory || []).forEach(h => eod.push({ Technician: t.name, Username: t.username, Date: h.date, Completed: h.completedCount, 'Moved Pending': h.pendingCount, Note: h.note, 'Submitted At': h.submittedAt || '', 'Approved At': h.approvedAt || '' }));
+      });
+      const wb = XLSX.utils.book_new();
+      const add = (rows, name) => XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows.length ? rows : [{ Info: 'No data' }]), name);
+      add(summary, 'Technician Summary');
+      add(tasks, 'All Tasks');
+      add(eod, 'EOD History');
+      XLSX.writeFile(wb, `Netlogic_Report_${todayIso()}.xlsx`);
+      showToast('Excel file downloaded.');
+    }
+
+    // ---- Admin password gate (simple deterrent, not real security) ----
+    function checkAdminPin(e) {
+      e.preventDefault();
+      if (document.getElementById('adminPinInput').value === ADMIN_PIN) {
+        sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+        document.getElementById('adminGate').classList.add('hidden');
+      } else {
+        document.getElementById('adminGateErr').classList.remove('hidden');
+      }
+    }
+    if (!sessionStorage.getItem(ADMIN_SESSION_KEY)) {
+      document.getElementById('adminGate').classList.remove('hidden');
+    }
+
+    // Same-browser tabs
+    window.addEventListener('storage', e => {
+      if (e.key === STORAGE_KEY) { loadState(); renderMainReport(); }
+    });
+
+    loadState();
+    renderMainReport();
+    checkMissedEod();
+    startCloudPolling();
+    // har 5 minute me missed/evening EOD check (admin page khula ho tab)
+    setInterval(() => { if (!document.hidden) { if (checkMissedEod()) renderMainReport(); } }, 300000);
+  </script>
+</body>
+</html>
