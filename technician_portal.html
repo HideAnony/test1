@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Netlogic Systems — Technician Portal</title>
+  <title>Netlogic Systems — User Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -33,7 +33,7 @@
 </head>
 <body class="min-h-full bg-slate-900 text-slate-100 flex flex-col">
 
-  <!-- TOP NAVIGATION BAR (TECHNICIAN PORTAL PAGE) -->
+  <!-- TOP NAVIGATION BAR (User PORTAL PAGE) -->
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
@@ -42,7 +42,7 @@
         </div>
         <div>
           <div class="flex flex-wrap items-center gap-2">
-            <h1 class="font-bold text-base sm:text-lg text-white">Netlogic Systems — Technician Portal</h1>
+            <h1 class="font-bold text-base sm:text-lg text-white">Netlogic Systems — User Portal</h1>
             <span id="simDateBadge" class="text-xs font-mono bg-blue-950 text-blue-300 border border-blue-700/60 px-2.5 py-0.5 rounded-full">
               <i class="fa-regular fa-calendar mr-1"></i><span id="simDateText">2026-11-19</span>
             </span>
@@ -65,7 +65,7 @@
             <span id="bellCount" class="hidden absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] grid place-items-center px-1">0</span>
           </button>
           <span id="headerTechChip" class="text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-700/70 px-3 py-1.5 rounded-lg"></span>
-          <button type="button" onclick="logoutTechnician()" class="bg-red-600 hover:bg-red-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition shadow">
+          <button type="button" onclick="logoutUser()" class="bg-red-600 hover:bg-red-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition shadow">
             <i class="fa-solid fa-right-from-bracket mr-1"></i>Logout
           </button>
         </div>
@@ -76,20 +76,20 @@
   <!-- MAIN CONTAINER -->
   <main class="max-w-7xl mx-auto w-full flex-1 p-4 sm:p-6 space-y-6">
 
-    <!-- TECHNICIAN LOGIN VIEW -->
+    <!-- User LOGIN VIEW -->
     <section id="loginView" class="py-6 sm:py-12">
       <div class="max-w-md mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
         <div class="text-center space-y-2">
           <div class="w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/40 text-blue-400 grid place-items-center mx-auto text-2xl">
             <i class="fa-solid fa-user-check"></i>
           </div>
-          <h2 class="text-xl font-bold text-white">Technician Portal Login</h2>
-          <p class="text-xs text-slate-400">Enter your technician username and PIN (default <code class="text-blue-300">1234</code>). All updates sync directly to the Main Report Page.</p>
+          <h2 class="text-xl font-bold text-white">User Portal Login</h2>
+          <p class="text-xs text-slate-400">Enter your User username and PIN (default <code class="text-blue-300">1234</code>). All updates sync directly to the Main Report Page.</p>
         </div>
 
-        <form onsubmit="handleTechnicianLogin(event)" class="space-y-4">
+        <form onsubmit="handleUserLogin(event)" class="space-y-4">
           <label class="block text-xs text-slate-300">
-            Technician Username *
+            User Username *
             <input id="loginUsername" required class="field mt-1" placeholder="e.g. tech_vinay" />
           </label>
           <label class="block text-xs text-slate-300">
@@ -98,19 +98,19 @@
           </label>
           <p id="loginErrorMsg" class="hidden text-xs text-red-400 bg-red-950/50 border border-red-800/60 rounded-lg p-2.5"></p>
           <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl text-sm cursor-pointer transition shadow-lg shadow-blue-950">
-            <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i>Login to Technician Portal
+            <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i>Login to User Portal
           </button>
         </form>
 
-        <!-- QUICK FILL SAMPLE TECHNICIANS -->
+        <!-- QUICK FILL SAMPLE UserS -->
         <div class="border-t border-slate-700/80 pt-4 space-y-2">
-          <p class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Quick Fill Technicians</p>
+          <p class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Quick Fill Users</p>
           <div id="quickFillButtons" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
     </section>
 
-    <!-- TECHNICIAN WORKSPACE VIEW -->
+    <!-- User WORKSPACE VIEW -->
     <section id="techWorkspaceView" class="hidden space-y-5">
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        <button type="button" onclick="logoutTechnician()" class="bg-red-950/60 hover:bg-red-900/70 text-red-300 border border-red-800/60 px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition">
+        <button type="button" onclick="logoutUser()" class="bg-red-950/60 hover:bg-red-900/70 text-red-300 border border-red-800/60 px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition">
           <i class="fa-solid fa-right-from-bracket mr-1"></i>Logout
         </button>
       </div>
@@ -394,12 +394,12 @@
       return t;
     }
     function remoteToState(remote) {
-      const rt = remote.technicians || {};
+      const rt = remote.Users || {};
       const fallback = remote.currentDate || todayIso();
       return {
         currentDate: fallback,
         lastUpdatedAt: remote.lastUpdatedAt || new Date().toISOString(),
-        technicians: Object.keys(rt).map(k => normalizeTech(rt[k], fallback))
+        Users: Object.keys(rt).map(k => normalizeTech(rt[k], fallback))
       };
     }
 
@@ -426,9 +426,9 @@
       if (!silent) showToast('Synced latest data from Cloud.');
     }
 
-    // Save only this technician's day/EOD fields (project/login stay untouched)
+    // Save only this User's day/EOD fields (project/login stay untouched)
     function cloudSaveTech(t) {
-      return cloudReq('PATCH', `technicians/${t.username}`, {
+      return cloudReq('PATCH', `Users/${t.username}`, {
         todayTasks: t.todayTasks,
         carryOverTasks: t.carryOverTasks,
         completedTasks: t.completedTasks,
@@ -441,7 +441,7 @@
       });
     }
 
-    // Debounced cloud save for the active technician. immediate=true waits for the upload.
+    // Debounced cloud save for the active User. immediate=true waits for the upload.
     function queueCloudSave(immediate = false) {
       clearTimeout(saveTimer);
       pendingPush = true;
@@ -460,14 +460,14 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.technicians) && parsed.currentDate) {
-            parsed.technicians.forEach(t => normalizeTech(t, parsed.currentDate));
+          if (parsed && Array.isArray(parsed.Users) && parsed.currentDate) {
+            parsed.Users.forEach(t => normalizeTech(t, parsed.currentDate));
             state = parsed;
             return;
           }
         }
       } catch (err) { console.warn('State parse fallback:', err); }
-      state = { currentDate: todayIso(), lastUpdatedAt: new Date().toISOString(), technicians: [] };
+      state = { currentDate: todayIso(), lastUpdatedAt: new Date().toISOString(), Users: [] };
     }
 
     function saveLocal() {
@@ -480,7 +480,7 @@
       }
     }
 
-    // Local save + queued cloud save for the active technician
+    // Local save + queued cloud save for the active User
     function saveState(notify = true, immediate = false) {
       saveLocal();
       if (notify) showToast('Synced to Main Report Page');
@@ -491,7 +491,7 @@
       try {
         const existing = JSON.parse(localStorage.getItem(SHARED_PROJECTS_KEY) || '[]');
         const list = Array.isArray(existing) ? existing : [];
-        state.technicians.forEach(tech => {
+        state.Users.forEach(tech => {
           if (!tech.project || !tech.project.projectName) return;
           const prjId = 'ALIGN-' + tech.username.toUpperCase();
           const idx = list.findIndex(item => item.id === prjId);
@@ -500,8 +500,8 @@
             name: tech.project.projectName,
             location: tech.project.location,
             pm: tech.project.pm,
-            technicianUser: tech.username,
-            technicianPass: tech.pin,
+            UserUser: tech.username,
+            UserPass: tech.pin,
             progress: Number(tech.project.progress) || 0,
             remark: tech.project.scope,
             dispatchStatus: 'Delivered',
@@ -532,7 +532,7 @@
     }
 
     function getActiveTech() {
-      return state.technicians.find(t => t.username === activeTechUsername) || null;
+      return state.Users.find(t => t.username === activeTechUsername) || null;
     }
     function isLocked(tech) { return !!tech && tech.eodStatus === 'pending'; }
     function guardLocked(tech) {
@@ -630,21 +630,21 @@
       }
     }
 
-    async function handleTechnicianLogin(e) {
+    async function handleUserLogin(e) {
       e.preventDefault();
       const user = document.getElementById('loginUsername').value.trim().toLowerCase();
       const pin = document.getElementById('loginPin').value.trim();
       const errEl = document.getElementById('loginErrorMsg');
-      const find = () => state.technicians.find(t => t.username.toLowerCase() === user && String(t.pin) === pin);
+      const find = () => state.Users.find(t => t.username.toLowerCase() === user && String(t.pin) === pin);
 
       let found = find();
-      if (!found && getCloudUrl()) {            // naya technician ho sakta hai — cloud se latest lo aur dobara try karo
+      if (!found && getCloudUrl()) {            // naya User ho sakta hai — cloud se latest lo aur dobara try karo
         lastRemoteRaw = '';
         await pullFromCloud(true);
         found = find();
       }
       if (!found) {
-        errEl.textContent = 'Invalid Technician Username or Password/PIN.';
+        errEl.textContent = 'Invalid User Username or Password/PIN.';
         errEl.classList.remove('hidden');
         return;
       }
@@ -659,28 +659,28 @@
       showToast(unread ? `Welcome, ${found.name}! ${unread} nayi notification hai.` : `Welcome, ${found.name}!`, unread ? 'warn' : 'success');
     }
 
-    function logoutTechnician() {
+    function logoutUser() {
       activeTechUsername = null;
       sessionStorage.removeItem(SESSION_TECH_KEY);
       applySessionView();
       renderQuickFillButtons();
-      document.title = 'Netlogic Systems — Technician Portal';
-      showToast('Logged out from Technician Portal.', 'warn');
+      document.title = 'Netlogic Systems — User Portal';
+      showToast('Logged out from User Portal.', 'warn');
     }
 
     function renderQuickFillButtons() {
       const wrap = document.getElementById('quickFillButtons');
-      wrap.innerHTML = state.technicians.length
-        ? state.technicians.map(t => `
+      wrap.innerHTML = state.Users.length
+        ? state.Users.map(t => `
             <button type="button" onclick="quickFillTech('${esc(t.username)}')" class="bg-slate-900 hover:bg-slate-700 text-cyan-300 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition">
               ${esc(t.name)} (${esc(t.username)})
             </button>
           `).join('')
-        : '<span class="text-xs text-slate-500">Technician list load ho rahi hai...</span>';
+        : '<span class="text-xs text-slate-500">User list load ho rahi hai...</span>';
     }
 
     function quickFillTech(username) {
-      const found = state.technicians.find(t => t.username === username);
+      const found = state.Users.find(t => t.username === username);
       document.getElementById('loginUsername').value = username;
       document.getElementById('loginPin').value = found ? found.pin : '1234';
       document.getElementById('loginErrorMsg').classList.add('hidden');
@@ -764,7 +764,7 @@
       const bell = document.getElementById('bellCount');
       bell.textContent = unread;
       bell.classList.toggle('hidden', !unread);
-      document.title = (unread ? `(${unread}) ` : '') + 'Netlogic Systems — Technician Portal';
+      document.title = (unread ? `(${unread}) ` : '') + 'Netlogic Systems — User Portal';
 
       const pendingTotal = (tech.carryOverTasks || []).length + (tech.todayTasks || []).filter(x => !x.completed).length;
       document.getElementById('wsPendingCountPill').textContent = `${pendingTotal} Pending`;
@@ -784,7 +784,7 @@
       const teamEl = document.getElementById('projTabTeam');
       const mates = (tech.project.team || []).filter(u => u !== tech.username);
       if (mates.length) {
-        teamEl.innerHTML = `<i class="fa-solid fa-users mr-1.5 text-cyan-400"></i>Saath me: ${mates.map(u => { const m = state.technicians.find(x => x.username === u); return esc(m ? m.name : u); }).join(', ')}`;
+        teamEl.innerHTML = `<i class="fa-solid fa-users mr-1.5 text-cyan-400"></i>Saath me: ${mates.map(u => { const m = state.Users.find(x => x.username === u); return esc(m ? m.name : u); }).join(', ')}`;
         teamEl.classList.remove('hidden');
       } else {
         teamEl.classList.add('hidden');
@@ -908,13 +908,13 @@
       const tech = getActiveTech();
       if (!tech) return;
       const val = Math.max(0, Math.min(100, Number(document.getElementById('projTabProgressInput').value) || 0));
-      // same site par saath wale technicians ka progress bhi update
+      // same site par saath wale Users ka progress bhi update
       const users = new Set([tech.username, ...(tech.project.team || [])]);
       users.forEach(u => {
-        const m = state.technicians.find(x => x.username === u);
+        const m = state.Users.find(x => x.username === u);
         if (!m) return;
         m.project.progress = val;
-        cloudReq('PATCH', `technicians/${u}/project`, { progress: val });
+        cloudReq('PATCH', `Users/${u}/project`, { progress: val });
       });
       saveLocal();
       showToast('Synced to Main Report Page');
