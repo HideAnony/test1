@@ -213,26 +213,6 @@
     </div>
   </div>
 
-  <!-- LEAVE MODAL -->
-  <div id="leaveModal" class="hidden fixed inset-0 z-50 bg-black/80 p-4 grid place-items-center">
-    <div class="bg-slate-800 border border-amber-700/60 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
-        <h3 class="font-bold text-base text-amber-300 flex items-center gap-2">
-          <i class="fa-solid fa-umbrella-beach"></i> Leave — <span id="leaveTechName"></span>
-        </h3>
-        <button type="button" onclick="closeLeaveModal()" class="text-slate-400 hover:text-white text-xl cursor-pointer">&times;</button>
-      </div>
-      <p class="text-xs text-slate-300 leading-relaxed">Chutti ke dino me technician ko EOD ya reminder nahi jayega aur wo din "missed" nahi gina jayega.</p>
-      <form onsubmit="saveLeave(event)" class="grid grid-cols-2 gap-3">
-        <label class="text-xs text-slate-300">From *<input id="leaveFrom" type="date" required class="field mt-1" /></label>
-        <label class="text-xs text-slate-300">To *<input id="leaveTo" type="date" required class="field mt-1" /></label>
-        <label class="text-xs text-slate-300 col-span-2">Reason (optional)<input id="leaveReason" class="field mt-1" placeholder="e.g. Ghar me function" /></label>
-        <button type="submit" class="col-span-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold py-2.5 rounded-lg text-xs cursor-pointer">Mark On Leave</button>
-      </form>
-      <div id="leaveList" class="space-y-2 max-h-48 overflow-y-auto"></div>
-    </div>
-  </div>
-
   <!-- OPTIONAL FIREBASE RTDB CLOUD SYNC MODAL -->
   <div id="cloudSyncModal" class="hidden fixed inset-0 z-50 bg-black/80 p-4 grid place-items-center">
     <div class="bg-slate-800 border border-indigo-700/60 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
@@ -352,17 +332,7 @@
             eodStatus: 'none'
           },
           {
-            username: 'tech_satyawan',
-            name: 'Satyawan',
-            pin: '1234',
-            project: {
-              projectName: 'Reliance Warehouse IP CCTV Expansion',
-              location: 'Bhiwandi Logistics Park',
-              pm: 'Vivek',
-              scope: 'Mount 8 bullet cameras along perimeter poles, pull armored cable, and configure NVR channels.',
-              progress: 45,
-              team: ['tech_satyawan']
-            },
+            
             carryOverTasks: [],
             todayTasks: [
               {
@@ -386,16 +356,7 @@
             eodStatus: 'none'
           },
           {
-            username: 'tech_shyamji',
-            name: 'Shyamji',
-            pin: '1234',
-            project: {
-              projectName: 'Tata Office Structured Cabling & Rack Upgrade',
-              location: 'Vashi, Navi Mumbai',
-              pm: 'Priya',
-              scope: 'Replace old 42U rack, reroute fiber patch cords, and verify switch stack uplink.',
-              progress: 80,
-              team: ['tech_shyamji']
+          
             },
             carryOverTasks: [
               {
@@ -490,7 +451,7 @@
     // Firebase drops empty arrays, so rebuild them after every download
     function normalizeTech(t, fallbackDate) {
       t.project = t.project || {};
-      ['carryOverTasks', 'todayTasks', 'completedTasks', 'eodHistory', 'notifications', 'leaves'].forEach(k => {
+      ['carryOverTasks', 'todayTasks', 'completedTasks', 'eodHistory', 'notifications'].forEach(k => {
         if (!t[k]) t[k] = [];
         else if (!Array.isArray(t[k])) t[k] = Object.values(t[k]);
       });
@@ -682,25 +643,6 @@
       return true;
     }
 
-    function isOnLeave(t, d) { return (t.leaves || []).some(l => l.from <= d && d <= l.to); }
-
-    // Chutti ke din ka EOD zaroori nahi: din apne aap aage badh jata hai (jab tak us din koi task/EOD pending na ho)
-    function advanceLeaveDays(t) {
-      if (t.eodStatus !== 'none' || (t.todayTasks || []).length) return false;
-      const today = todayIso();
-      let moved = false;
-      t.eodHistory = t.eodHistory || [];
-      while (isOnLeave(t, t.currentDate) && t.currentDate < today) {
-        const d = t.currentDate;
-        if (!t.eodHistory.some(h => h.date === d && h.leave)) {
-          t.eodHistory.unshift({ date: d, completedCount: 0, pendingCount: 0, leave: true, note: 'On leave — EOD required nahi.' });
-        }
-        t.currentDate = addDaysIso(d, 1);
-        moved = true;
-      }
-      return moved;
-    }
-
     function checkMissedEod() {
       if (!state) return 0;
       const today = todayIso();
@@ -708,8 +650,6 @@
       const changed = [];
       state.technicians.forEach(t => {
         if (t.eodStatus === 'pending') return;   // submitted, waiting for admin approval
-        if (advanceLeaveDays(t)) changed.push(t);
-        if (isOnLeave(t, techDate(t)) || isOnLeave(t, today)) return;   // chutti par — EOD / reminder nahi
         const d = techDate(t);
         let hit = false;
         if (d < today) {
@@ -730,88 +670,12 @@
       let n = 0;
       state.technicians.forEach(t => {
         if (t.eodStatus === 'pending') return;
-        if (isOnLeave(t, todayIso()) || isOnLeave(t, techDate(t))) return;   // chutti par — reminder nahi
         if (pushNotif(t, 'eodrem-' + techDate(t) + '-' + Date.now(), 'eod_reminder',
           `🔔 Admin reminder: ${techDate(t)} ka EOD submit karein.`)) { n++; cloudSaveTech(t); }
       });
       saveState();
       renderMainReport();
       showToast(n ? `${n} technician(s) ko reminder bheja.` : 'Koi pending reminder nahi (sabka EOD submit ho chuka).', 'warn');
-    }
-
-    // ================= LEAVE (CHUTTI) =================
-    let leaveModalUser = null;
-
-    function openLeaveModal(username) {
-      const t = state.technicians.find(x => x.username === username);
-      if (!t) return;
-      leaveModalUser = username;
-      document.getElementById('leaveTechName').textContent = t.name;
-      document.getElementById('leaveFrom').value = todayIso();
-      document.getElementById('leaveTo').value = todayIso();
-      document.getElementById('leaveReason').value = '';
-      renderLeaveList();
-      document.getElementById('leaveModal').classList.remove('hidden');
-    }
-    function closeLeaveModal() {
-      document.getElementById('leaveModal').classList.add('hidden');
-      leaveModalUser = null;
-    }
-    function renderLeaveList() {
-      const t = state.technicians.find(x => x.username === leaveModalUser);
-      const list = ((t && t.leaves) || []).slice().sort((a, b) => (a.from < b.from ? 1 : -1));
-      document.getElementById('leaveList').innerHTML = list.length
-        ? list.map(l => `
-            <div class="flex items-center justify-between gap-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs">
-              <div><span class="font-mono text-amber-300">${esc(l.from)}${l.to !== l.from ? ' → ' + esc(l.to) : ''}</span>${l.reason ? `<span class="text-slate-400"> • ${esc(l.reason)}</span>` : ''}</div>
-              <button type="button" onclick="removeLeave('${esc(l.id)}')" class="text-red-400 hover:text-red-300 cursor-pointer">Remove</button>
-            </div>`).join('')
-        : '<p class="text-xs text-slate-500">Koi chutti mark nahi hai.</p>';
-    }
-    function cloudSaveLeaves(t) {
-      return cloudReq('PATCH', `technicians/${t.username}`, { leaves: t.leaves, notifications: t.notifications });
-    }
-    async function saveLeave(e) {
-      e.preventDefault();
-      const t = state.technicians.find(x => x.username === leaveModalUser);
-      if (!t) return;
-      const from = document.getElementById('leaveFrom').value;
-      const to = document.getElementById('leaveTo').value;
-      const reason = document.getElementById('leaveReason').value.trim();
-      if (!from || !to || to < from) { showToast('To date, From date se pehle nahi ho sakti.', 'error'); return; }
-      const id = 'lv-' + Date.now();
-      t.leaves = t.leaves || [];
-      t.leaves.push({ id, from, to, reason });
-      const rng = from === to ? from : `${from} se ${to}`;
-      pushNotif(t, 'leave-' + id, 'leave', `🌴 Aapki chutti mark hui hai (${rng}). In dino EOD ya reminder nahi aayega.`);
-      const moved = advanceLeaveDays(t);
-      saveState();
-      renderLeaveList();
-      renderMainReport();
-      await cloudSaveLeaves(t);
-      if (moved) await cloudSaveTech(t);
-      showToast(`${t.name} ki chutti mark ho gayi (${rng}).`);
-    }
-    async function removeLeave(id) {
-      const t = state.technicians.find(x => x.username === leaveModalUser);
-      if (!t) return;
-      const l = (t.leaves || []).find(x => x.id === id);
-      if (!l) return;
-      t.leaves = t.leaves.filter(x => x.id !== id);
-      pushNotif(t, 'leaverm-' + id, 'leave', `Aapki chutti (${l.from}${l.to !== l.from ? ' se ' + l.to : ''}) hata di gayi hai.`);
-      saveState();
-      renderLeaveList();
-      renderMainReport();
-      await cloudSaveLeaves(t);
-      showToast('Chutti hata di gayi.', 'warn');
-    }
-
-    function leaveBadge(t) {
-      const today = todayIso();
-      return (t.leaves || []).filter(l => l.to >= today).sort((a, b) => (a.from < b.from ? -1 : 1)).slice(0, 2).map(l => {
-        const now = l.from <= today;
-        return `<span class="text-[10px] px-2 py-0.5 rounded-full border ${now ? 'bg-cyan-950 text-cyan-300 border-cyan-700/60' : 'bg-slate-900 text-slate-300 border-slate-700'}">🌴 ${now ? 'On leave' : 'Leave'} ${esc(l.from)}${l.to !== l.from ? ' → ' + esc(l.to) : ''}</span>`;
-      }).join(' ');
     }
 
     // ================= EOD APPROVE / REJECT =================
@@ -1094,7 +958,7 @@
                     <h3 class="text-lg font-bold text-white">${esc(tech.name)}</h3>
                     <span class="text-[11px] font-mono bg-slate-900 text-cyan-300 border border-slate-700 px-2 py-0.5 rounded-md">@${esc(tech.username)}</span>
                     <span class="text-[11px] font-mono bg-blue-950 text-blue-300 border border-blue-800/60 px-2 py-0.5 rounded-md"><i class="fa-regular fa-calendar mr-1"></i>${esc(techDate(tech))}</span>
-                    ${eodBadge(tech)} ${leaveBadge(tech)}
+                    ${eodBadge(tech)}
                   </div>
                   <p class="text-xs text-blue-300 font-medium mt-1">
                     <i class="fa-solid fa-diagram-project mr-1"></i>${esc(tech.project.projectName || 'No Project Aligned')}
@@ -1104,14 +968,9 @@
                   </p>
                   ${team.length > 1 ? `<p class="text-[11px] text-slate-400"><i class="fa-solid fa-users mr-1 text-cyan-400"></i>Team: ${team.map(u => { const m = state.technicians.find(x => x.username === u); return esc(m ? m.name : u); }).join(', ')}</p>` : ''}
                 </div>
-                <div class="flex flex-col gap-1.5 items-end shrink-0">
-                <button type="button" onclick="openLeaveModal('${esc(tech.username)}')" class="bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white border border-amber-500/40 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition">
-                  <i class="fa-solid fa-umbrella-beach mr-1"></i>Leave
-                </button>
                 <a href="./technician_portal.html?tech=${encodeURIComponent(tech.username)}" class="bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition shrink-0">
                   Tech Page <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
                 </a>
-              </div>
               </div>
 
               <div>
@@ -1198,7 +1057,7 @@
     // ---- Excel export (all technicians, all tasks, EOD history) ----
     function exportExcel() {
       if (typeof XLSX === 'undefined') { showToast('Excel library could not load — check internet.', 'error'); return; }
-      const summary = [], tasks = [], eod = [], leaves = [];
+      const summary = [], tasks = [], eod = [];
       state.technicians.forEach(t => {
         const p = t.project || {};
         const teamNames = (p.team || []).map(u => { const m = state.technicians.find(x => x.username === u); return m ? m.name : u; }).join(', ');
@@ -1209,7 +1068,6 @@
           'Progress %': Number(p.progress) || 0,
           'Technician Date': techDate(t),
           'EOD Status': t.eodStatus || 'none',
-          'On Leave Today': isOnLeave(t, todayIso()) ? 'Yes' : 'No',
           'Open Today': todayOpen,
           'Checked Today': (t.todayTasks || []).length - todayOpen,
           'Carry-Over Pending': (t.carryOverTasks || []).length,
@@ -1219,7 +1077,6 @@
         (t.carryOverTasks || []).forEach(x => tasks.push({ ...base, Date: x.originDate, Type: 'Carry-Over', Task: x.title, Note: x.note || '', Status: 'Pending', 'Pending Reason': x.pendingReason || '' }));
         (t.todayTasks || []).forEach(x => tasks.push({ ...base, Date: techDate(t), Type: 'Today', Task: x.title, Note: x.note || '', Status: x.completed ? 'Checked' : 'Open', 'Pending Reason': x.completed ? '' : (x.pendingReason || '') }));
         (t.completedTasks || []).forEach(x => tasks.push({ ...base, Date: x.completedDate || '', Type: 'Completed', Task: x.title, Note: x.note || '', Status: 'Completed', 'Pending Reason': '' }));
-        (t.leaves || []).forEach(l => leaves.push({ Technician: t.name, Username: t.username, From: l.from, To: l.to, Reason: l.reason || '' }));
         (t.eodHistory || []).forEach(h => eod.push({ Technician: t.name, Username: t.username, Date: h.date, Completed: h.completedCount, 'Moved Pending': h.pendingCount, Note: h.note, 'Submitted At': h.submittedAt || '', 'Approved At': h.approvedAt || '' }));
       });
       const wb = XLSX.utils.book_new();
@@ -1227,7 +1084,6 @@
       add(summary, 'Technician Summary');
       add(tasks, 'All Tasks');
       add(eod, 'EOD History');
-      add(leaves, 'Leaves');
       XLSX.writeFile(wb, `Netlogic_Report_${todayIso()}.xlsx`);
       showToast('Excel file downloaded.');
     }
