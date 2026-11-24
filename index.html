@@ -79,7 +79,7 @@
           <i class="fa-solid fa-bell mr-1"></i>Send EOD Reminder
         </button>
         <a href="./technician_portal.html" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition shadow inline-flex items-center gap-1.5">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i>Open Technician Page
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>Open User Page
         </a>
         <button type="button" onclick="openResetConfirm()" class="bg-slate-800 hover:bg-red-950/70 text-slate-400 hover:text-red-300 border border-slate-700 hover:border-red-800 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition" title="Reset to Sample Data">
           <i class="fa-solid fa-rotate-left mr-1"></i>Reset Demo
@@ -93,7 +93,7 @@
     <!-- KPI CARDS -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4">
-        <p class="text-xs text-slate-400">Active Technicians</p>
+        <p class="text-xs text-slate-400">Active Users</p>
         <p id="kpiTechs" class="text-2xl font-bold text-white mt-1">0</p>
       </div>
       <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4">
@@ -110,18 +110,18 @@
       </div>
     </div>
 
-    <!-- CREATE TECHNICIAN ACCOUNT & ALIGN SITE PROJECT PANEL -->
+    <!-- CREATE USERS ACCOUNT & ALIGN SITE PROJECT PANEL -->
     <div class="bg-slate-800/90 border border-blue-700/50 rounded-2xl p-4 sm:p-5 space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/80 pb-3">
         <div>
           <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <i class="fa-solid fa-user-plus text-emerald-400"></i>
-            Create Technician Account & Align Site Project
+            Create Users Account & Align Site Project
           </h2>
-          <p class="text-xs text-slate-400">Create a technician login or update an existing technician's credentials and aligned site project. Co-technicians bhi isi site par add ho sakte hain.</p>
+          <p class="text-xs text-slate-400">Create a Users login or update an existing User's credentials and aligned site project. Co-Userss bhi isi site par add ho sakte hain.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <input id="mainSearch" oninput="renderMainReport()" placeholder="Filter by technician, project, or site..." class="field !w-64 text-xs" />
+          <input id="mainSearch" oninput="renderMainReport()" placeholder="Filter by Users, project, or site..." class="field !w-64 text-xs" />
         </div>
       </div>
 
@@ -131,7 +131,7 @@
           <select id="alignTechSelect" onchange="prefillAlignForm()" class="field mt-1"></select>
         </label>
         <label class="text-xs text-slate-300 lg:col-span-1">
-          Technician Name *
+          Users Name *
           <input id="techFullNameInput" required class="field mt-1" placeholder="e.g. Rohan Verma" />
         </label>
         <label class="text-xs text-slate-300 lg:col-span-1">
@@ -165,11 +165,11 @@
         </label>
 
         <label class="text-xs text-slate-300 sm:col-span-2 lg:col-span-3">
-          Co-Technicians (same site par saath me — Ctrl/Cmd se multiple chunein)
+          Co-Userss (same site par saath me — Ctrl/Cmd se multiple chunein)
           <select id="alignCoTechs" multiple class="field mt-1 h-24"></select>
         </label>
         <label class="text-xs text-slate-300 sm:col-span-2 lg:col-span-2">
-          Naye Co-Technician (comma se alag, optional)
+          Naye Co-Users (comma se alag, optional)
           <input id="alignNewCoTechs" class="field mt-1" placeholder="e.g. Rahul, Amit (PIN 1234 se ban jayenge)" />
         </label>
 
@@ -177,7 +177,7 @@
           <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-3 rounded-lg text-xs cursor-pointer transition shadow">
             <i class="fa-solid fa-floppy-disk mr-1"></i>Save & Align
           </button>
-          <button type="button" onclick="resetNewTechForm()" title="Clear for New Technician" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 px-3 rounded-lg text-xs cursor-pointer transition shrink-0">
+          <button type="button" onclick="resetNewTechForm()" title="Clear for New Users" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 px-3 rounded-lg text-xs cursor-pointer transition shrink-0">
             <i class="fa-solid fa-plus"></i>
           </button>
         </div>
@@ -190,12 +190,12 @@
         <i class="fa-solid fa-clipboard-check text-amber-400"></i>
         EOD Approval Pending (<span id="eodPendingCount">0</span>)
       </h2>
-      <p class="text-xs text-slate-400">Jab tak approve nahi hota, technician ka din ka record final nahi hoga aur wo naya kaam add nahi kar sakta.</p>
+      <p class="text-xs text-slate-400">Jab tak approve nahi hota, Users ka din ka record final nahi hoga aur wo naya kaam add nahi kar sakta.</p>
       <div id="eodApprovalList" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
     </div>
 
-    <!-- ALL-TECHNICIAN NAME-WISE DAILY UPDATE CARDS -->
-    <div id="allTechniciansReportGrid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+    <!-- ALL-Users NAME-WISE DAILY UPDATE CARDS -->
+    <div id="allUserssReportGrid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5"></div>
   </main>
 
   <!-- RESET CONFIRMATION MODAL -->
@@ -205,7 +205,7 @@
         <i class="fa-solid fa-triangle-exclamation text-lg"></i>
         <h3 class="font-bold text-base text-white">Reset Demo Data?</h3>
       </div>
-      <p class="text-xs text-slate-300 leading-relaxed"><b class="text-red-300">Warning:</b> this DELETES all technicians, projects and tasks (also from the online database) and restores the 3 demo technicians (Vinay, Satyawan, Shyamji).</p>
+      <p class="text-xs text-slate-300 leading-relaxed"><b class="text-red-300">Warning:</b> this DELETES all Userss, projects and tasks (also from the online database) and restores the 3 demo Userss (Vinay, Satyawan, Shyamji).</p>
       <div class="flex justify-end gap-2 pt-1">
         <button type="button" onclick="document.getElementById('resetModal').classList.add('hidden')" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-xs cursor-pointer">Cancel</button>
         <button type="button" onclick="confirmResetDemo()" class="bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-2 rounded-lg text-xs cursor-pointer">Yes, Reset</button>
@@ -243,7 +243,7 @@
   <div id="toastBox" class="hidden fixed bottom-4 right-4 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-medium flex items-center gap-2"></div>
 
   <script>
-    // Shared keys used by both main_report.html and technician_portal.html
+    // Shared keys used by both main_report.html and Users_portal.html
     const STORAGE_KEY = 'netlogic_tech_eod_portal_v1';
     const SHARED_PROJECTS_KEY = 'infratrack_dispatch_projects_v2';
     const CLOUD_URL_KEY = 'netlogic_firebase_rtdb_url_v1';
@@ -274,7 +274,7 @@
       return {
         currentDate: today,
         lastUpdatedAt: new Date().toISOString(),
-        technicians: [
+        Userss: [
           {
             username: 'tech_vinay',
             name: 'Vinay',
@@ -480,18 +480,18 @@
       return t;
     }
     function remoteToState(remote) {
-      const rt = remote.technicians || {};
+      const rt = remote.Userss || {};
       const fallback = remote.currentDate || todayIso();
       return {
         currentDate: fallback,
         lastUpdatedAt: remote.lastUpdatedAt || new Date().toISOString(),
-        technicians: Object.keys(rt).map(k => normalizeTech(rt[k], fallback))
+        Userss: Object.keys(rt).map(k => normalizeTech(rt[k], fallback))
       };
     }
     function stateToRemote(s) {
       const techs = {};
-      s.technicians.forEach(t => { techs[t.username] = t; });
-      return { currentDate: s.currentDate, lastUpdatedAt: s.lastUpdatedAt, technicians: techs };
+      s.Userss.forEach(t => { techs[t.username] = t; });
+      return { currentDate: s.currentDate, lastUpdatedAt: s.lastUpdatedAt, Userss: techs };
     }
 
     function isTyping() {
@@ -535,21 +535,21 @@
     function cloudPushAll() { return cloudReq('PUT', '', stateToRemote(state)); }
 
     async function cloudSaveAligned(username, oldUser) {
-      const t = state.technicians.find(x => x.username === username);
+      const t = state.Userss.find(x => x.username === username);
       if (!t) return;
       if (oldUser && oldUser !== username) {
-        await cloudReq('PUT', `technicians/${username}`, t);
-        await cloudReq('DELETE', `technicians/${oldUser}`);
+        await cloudReq('PUT', `Userss/${username}`, t);
+        await cloudReq('DELETE', `Userss/${oldUser}`);
       } else if (oldUser) {
-        await cloudReq('PATCH', `technicians/${username}`, { name: t.name, username: t.username, pin: t.pin, project: t.project });
+        await cloudReq('PATCH', `Userss/${username}`, { name: t.name, username: t.username, pin: t.pin, project: t.project });
       } else {
-        await cloudReq('PUT', `technicians/${username}`, t);
+        await cloudReq('PUT', `Userss/${username}`, t);
       }
     }
 
-    // Save only the day/EOD related fields of one technician (does not touch project/login)
+    // Save only the day/EOD related fields of one Users (does not touch project/login)
     function cloudSaveTech(t) {
-      return cloudReq('PATCH', `technicians/${t.username}`, {
+      return cloudReq('PATCH', `Userss/${t.username}`, {
         todayTasks: t.todayTasks,
         carryOverTasks: t.carryOverTasks,
         completedTasks: t.completedTasks,
@@ -586,15 +586,15 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.technicians) && parsed.currentDate) {
-            parsed.technicians.forEach(t => normalizeTech(t, parsed.currentDate));
+          if (parsed && Array.isArray(parsed.Userss) && parsed.currentDate) {
+            parsed.Userss.forEach(t => normalizeTech(t, parsed.currentDate));
             state = parsed;
             return;
           }
         }
       } catch (err) { console.warn('State parse fallback:', err); }
       state = createDefaultState();
-      state.technicians.forEach(t => normalizeTech(t, state.currentDate));
+      state.Userss.forEach(t => normalizeTech(t, state.currentDate));
       saveState();
     }
 
@@ -613,7 +613,7 @@
       try {
         const existing = JSON.parse(localStorage.getItem(SHARED_PROJECTS_KEY) || '[]');
         const list = Array.isArray(existing) ? existing : [];
-        state.technicians.forEach(tech => {
+        state.Userss.forEach(tech => {
           const prjId = 'ALIGN-' + tech.username.toUpperCase();
           const idx = list.findIndex(item => item.id === prjId);
           const record = {
@@ -621,8 +621,8 @@
             name: tech.project.projectName,
             location: tech.project.location,
             pm: tech.project.pm,
-            technicianUser: tech.username,
-            technicianPass: tech.pin,
+            UsersUser: tech.username,
+            UsersPass: tech.pin,
             progress: Number(tech.project.progress) || 0,
             remark: tech.project.scope,
             dispatchStatus: 'Delivered',
@@ -653,7 +653,7 @@
     }
 
     // ================= NOTIFICATIONS / MISSED EOD =================
-    // Same function should also be pasted in technician.html (id-dedupe prevents duplicates)
+    // Same function should also be pasted in Users.html (id-dedupe prevents duplicates)
     function pushNotif(tech, id, type, text) {
       tech.notifications = tech.notifications || [];
       if (tech.notifications.some(n => n.id === id)) return false;
@@ -667,7 +667,7 @@
       const today = todayIso();
       const istHour = new Date(Date.now() + 19800000).getUTCHours();
       const changed = [];
-      state.technicians.forEach(t => {
+      state.Userss.forEach(t => {
         if (t.eodStatus === 'pending') return;   // submitted, waiting for admin approval
         const d = techDate(t);
         let hit = false;
@@ -687,19 +687,19 @@
     // Manual admin reminder button
     async function sendReminders() {
       let n = 0;
-      state.technicians.forEach(t => {
+      state.Userss.forEach(t => {
         if (t.eodStatus === 'pending') return;
         if (pushNotif(t, 'eodrem-' + techDate(t) + '-' + Date.now(), 'eod_reminder',
           `🔔 Admin reminder: ${techDate(t)} ka EOD submit karein.`)) { n++; cloudSaveTech(t); }
       });
       saveState();
       renderMainReport();
-      showToast(n ? `${n} technician(s) ko reminder bheja.` : 'Koi pending reminder nahi (sabka EOD submit ho chuka).', 'warn');
+      showToast(n ? `${n} Users(s) ko reminder bheja.` : 'Koi pending reminder nahi (sabka EOD submit ho chuka).', 'warn');
     }
 
     // ================= EOD APPROVE / REJECT =================
     async function approveEod(username) {
-      const tech = state.technicians.find(t => t.username === username);
+      const tech = state.Userss.find(t => t.username === username);
       if (!tech || tech.eodStatus !== 'pending') return;
       const prevDate = techDate(tech);
       const nextDate = addDaysIso(prevDate, 1);
@@ -738,9 +738,9 @@
     }
 
     async function rejectEod(username) {
-      const tech = state.technicians.find(t => t.username === username);
+      const tech = state.Userss.find(t => t.username === username);
       if (!tech || tech.eodStatus !== 'pending') return;
-      const reason = prompt('Reject reason (technician ko dikhega):');
+      const reason = prompt('Reject reason (Users ko dikhega):');
       if (reason === null) return;
       tech.eodStatus = 'rejected';
       tech.eodRejectReason = reason.trim() || 'Please correct karke dobara submit karein.';
@@ -752,7 +752,7 @@
     }
 
     function renderEodApprovals() {
-      const pend = state.technicians.filter(t => t.eodStatus === 'pending');
+      const pend = state.Userss.filter(t => t.eodStatus === 'pending');
       document.getElementById('eodApprovalPanel').classList.toggle('hidden', !pend.length);
       document.getElementById('eodPendingCount').textContent = pend.length;
       document.getElementById('eodApprovalList').innerHTML = pend.map(t => {
@@ -789,21 +789,21 @@
       return `<span class="text-[10px] px-2 py-0.5 rounded-full border ${m[0]}">${m[1]}</span>`;
     }
 
-    // ================= FORM: CREATE / ALIGN TECHNICIAN =================
+    // ================= FORM: CREATE / ALIGN Users =================
     function populateAlignSelect() {
       const sel = document.getElementById('alignTechSelect');
       const currentVal = sel.value;
-      sel.innerHTML = '<option value="">-- New Technician --</option>' +
-        state.technicians.map(t => `
+      sel.innerHTML = '<option value="">-- New Users --</option>' +
+        state.Userss.map(t => `
           <option value="${esc(t.username)}">${esc(t.name)} (${esc(t.username)})</option>
         `).join('');
-      if (currentVal && state.technicians.some(t => t.username === currentVal)) {
+      if (currentVal && state.Userss.some(t => t.username === currentVal)) {
         sel.value = currentVal;
       }
 
       const co = document.getElementById('alignCoTechs');
       const keep = Array.from(co.selectedOptions).map(o => o.value);
-      co.innerHTML = state.technicians.map(t => `<option value="${esc(t.username)}">${esc(t.name)} (${esc(t.username)})</option>`).join('');
+      co.innerHTML = state.Userss.map(t => `<option value="${esc(t.username)}">${esc(t.name)} (${esc(t.username)})</option>`).join('');
       Array.from(co.options).forEach(o => { o.selected = keep.includes(o.value); });
     }
 
@@ -827,7 +827,7 @@
         resetNewTechForm();
         return;
       }
-      const tech = state.technicians.find(t => t.username === username);
+      const tech = state.Userss.find(t => t.username === username);
       if (!tech) return;
       document.getElementById('techFullNameInput').value = tech.name || '';
       document.getElementById('techUsernameInput').value = tech.username || '';
@@ -856,22 +856,22 @@
       const scope = document.getElementById('alignScope').value.trim();
 
       if (!fullName || !username || !pin || !projectName || !location || !pm) {
-        showToast('Please fill all required Technician & Site Project fields.', 'error');
+        showToast('Please fill all required Users & Site Project fields.', 'error');
         return;
       }
 
-      const existingIdx = state.technicians.findIndex(
+      const existingIdx = state.Userss.findIndex(
         t => t.username.toLowerCase() === (selectedExistingUser || username).toLowerCase()
       );
       const alignedProject = { projectName, location, pm, progress, scope };
 
-      // ---- Co-technicians (same site par saath wale) ----
+      // ---- Co-Userss (same site par saath wale) ----
       const coUsers = Array.from(document.getElementById('alignCoTechs').selectedOptions).map(o => o.value);
       document.getElementById('alignNewCoTechs').value.split(',').map(s => s.trim()).filter(Boolean).forEach(nm => {
         const u = 'tech_' + nm.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
         if (!u || u === 'tech_') return;
-        if (!state.technicians.some(t => t.username === u)) {
-          state.technicians.push({
+        if (!state.Userss.some(t => t.username === u)) {
+          state.Userss.push({
             username: u, name: nm, pin: '1234', project: {}, currentDate: todayIso(),
             carryOverTasks: [], todayTasks: [], completedTasks: [], eodHistory: [],
             notifications: [], eodStatus: 'none'
@@ -882,21 +882,21 @@
       const team = [...new Set([username, ...coUsers])];
       alignedProject.team = team;
       team.filter(u => u !== username).forEach(u => {
-        const c = state.technicians.find(t => t.username === u);
+        const c = state.Userss.find(t => t.username === u);
         if (c) c.project = { ...alignedProject };
       });
 
       let oldUser = null;
 
       if (existingIdx !== -1) {
-        oldUser = state.technicians[existingIdx].username;
-        state.technicians[existingIdx].name = fullName;
-        state.technicians[existingIdx].username = username;
-        state.technicians[existingIdx].pin = pin;
-        state.technicians[existingIdx].project = alignedProject;
-        showToast(`Updated technician "${fullName}" (@${username}) & aligned "${projectName}"` + (team.length > 1 ? ` with ${team.length - 1} co-technician(s)` : ''));
+        oldUser = state.Userss[existingIdx].username;
+        state.Userss[existingIdx].name = fullName;
+        state.Userss[existingIdx].username = username;
+        state.Userss[existingIdx].pin = pin;
+        state.Userss[existingIdx].project = alignedProject;
+        showToast(`Updated Users "${fullName}" (@${username}) & aligned "${projectName}"` + (team.length > 1 ? ` with ${team.length - 1} co-Users(s)` : ''));
       } else {
-        state.technicians.push({
+        state.Userss.push({
           username,
           name: fullName,
           pin,
@@ -909,7 +909,7 @@
           notifications: [],
           eodStatus: 'none'
         });
-        showToast(`Created technician "${fullName}" (@${username}) & aligned "${projectName}"` + (team.length > 1 ? ` with ${team.length - 1} co-technician(s)` : ''));
+        showToast(`Created Users "${fullName}" (@${username}) & aligned "${projectName}"` + (team.length > 1 ? ` with ${team.length - 1} co-Users(s)` : ''));
       }
 
       saveState();
@@ -928,7 +928,7 @@
       renderEodApprovals();
 
       const query = (document.getElementById('mainSearch').value || '').toLowerCase().trim();
-      const filtered = state.technicians.filter(t => {
+      const filtered = state.Userss.filter(t => {
         if (!query) return true;
         return (
           t.name.toLowerCase().includes(query) ||
@@ -943,20 +943,20 @@
       let totalCompleted = 0;
       let totalPending = 0;
 
-      state.technicians.forEach(t => {
+      state.Userss.forEach(t => {
         totalActiveTasks += (t.todayTasks || []).length + (t.carryOverTasks || []).length;
         totalCompleted += (t.completedTasks || []).length;
         totalPending += (t.carryOverTasks || []).length + (t.todayTasks || []).filter(x => !x.completed).length;
       });
 
-      document.getElementById('kpiTechs').textContent = state.technicians.length;
+      document.getElementById('kpiTechs').textContent = state.Userss.length;
       document.getElementById('kpiTodayTasks').textContent = totalActiveTasks;
       document.getElementById('kpiCompleted').textContent = totalCompleted;
       document.getElementById('kpiPending').textContent = totalPending;
 
-      const grid = document.getElementById('allTechniciansReportGrid');
+      const grid = document.getElementById('allUserssReportGrid');
       if (!filtered.length) {
-        grid.innerHTML = `<div class="col-span-full bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center text-xs text-slate-400">No technicians match "${esc(query)}".</div>`;
+        grid.innerHTML = `<div class="col-span-full bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center text-xs text-slate-400">No Userss match "${esc(query)}".</div>`;
         return;
       }
 
@@ -985,7 +985,7 @@
                   <p class="text-[11px] text-slate-400">
                     <i class="fa-solid fa-location-dot mr-1 text-rose-400"></i>${esc(tech.project.location || '—')} • PM: <b class="text-slate-200">${esc(tech.project.pm || '—')}</b>
                   </p>
-                  ${team.length > 1 ? `<p class="text-[11px] text-slate-400"><i class="fa-solid fa-users mr-1 text-cyan-400"></i>Team: ${team.map(u => { const m = state.technicians.find(x => x.username === u); return esc(m ? m.name : u); }).join(', ')}</p>` : ''}
+                  ${team.length > 1 ? `<p class="text-[11px] text-slate-400"><i class="fa-solid fa-users mr-1 text-cyan-400"></i>Team: ${team.map(u => { const m = state.Userss.find(x => x.username === u); return esc(m ? m.name : u); }).join(', ')}</p>` : ''}
                 </div>
                 <a href="./technician_portal.html?tech=${encodeURIComponent(tech.username)}" class="bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition shrink-0">
                   Tech Page <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
@@ -1065,7 +1065,7 @@
 
     async function confirmResetDemo() {
       state = createDefaultState();
-      state.technicians.forEach(t => normalizeTech(t, state.currentDate));
+      state.Userss.forEach(t => normalizeTech(t, state.currentDate));
       saveState();
       document.getElementById('resetModal').classList.add('hidden');
       renderMainReport();
@@ -1073,19 +1073,19 @@
       showToast('Demo data restored (online too).');
     }
 
-    // ---- Excel export (all technicians, all tasks, EOD history) ----
+    // ---- Excel export (all Userss, all tasks, EOD history) ----
     function exportExcel() {
       if (typeof XLSX === 'undefined') { showToast('Excel library could not load — check internet.', 'error'); return; }
       const summary = [], tasks = [], eod = [];
-      state.technicians.forEach(t => {
+      state.Userss.forEach(t => {
         const p = t.project || {};
-        const teamNames = (p.team || []).map(u => { const m = state.technicians.find(x => x.username === u); return m ? m.name : u; }).join(', ');
-        const base = { Technician: t.name, Username: t.username, Project: p.projectName || '', Location: p.location || '', PM: p.pm || '', Team: teamNames };
+        const teamNames = (p.team || []).map(u => { const m = state.Userss.find(x => x.username === u); return m ? m.name : u; }).join(', ');
+        const base = { Users: t.name, Username: t.username, Project: p.projectName || '', Location: p.location || '', PM: p.pm || '', Team: teamNames };
         const todayOpen = (t.todayTasks || []).filter(x => !x.completed).length;
         summary.push({
           ...base,
           'Progress %': Number(p.progress) || 0,
-          'Technician Date': techDate(t),
+          'Users Date': techDate(t),
           'EOD Status': t.eodStatus || 'none',
           'Open Today': todayOpen,
           'Checked Today': (t.todayTasks || []).length - todayOpen,
@@ -1096,11 +1096,11 @@
         (t.carryOverTasks || []).forEach(x => tasks.push({ ...base, Date: x.originDate, Type: 'Carry-Over', Task: x.title, Note: x.note || '', Status: 'Pending', 'Pending Reason': x.pendingReason || '' }));
         (t.todayTasks || []).forEach(x => tasks.push({ ...base, Date: techDate(t), Type: 'Today', Task: x.title, Note: x.note || '', Status: x.completed ? 'Checked' : 'Open', 'Pending Reason': x.completed ? '' : (x.pendingReason || '') }));
         (t.completedTasks || []).forEach(x => tasks.push({ ...base, Date: x.completedDate || '', Type: 'Completed', Task: x.title, Note: x.note || '', Status: 'Completed', 'Pending Reason': '' }));
-        (t.eodHistory || []).forEach(h => eod.push({ Technician: t.name, Username: t.username, Date: h.date, Completed: h.completedCount, 'Moved Pending': h.pendingCount, Note: h.note, 'Submitted At': h.submittedAt || '', 'Approved At': h.approvedAt || '' }));
+        (t.eodHistory || []).forEach(h => eod.push({ Users: t.name, Username: t.username, Date: h.date, Completed: h.completedCount, 'Moved Pending': h.pendingCount, Note: h.note, 'Submitted At': h.submittedAt || '', 'Approved At': h.approvedAt || '' }));
       });
       const wb = XLSX.utils.book_new();
       const add = (rows, name) => XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows.length ? rows : [{ Info: 'No data' }]), name);
-      add(summary, 'Technician Summary');
+      add(summary, 'Users Summary');
       add(tasks, 'All Tasks');
       add(eod, 'EOD History');
       XLSX.writeFile(wb, `Netlogic_Report_${todayIso()}.xlsx`);
